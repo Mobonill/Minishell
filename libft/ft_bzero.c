@@ -1,12 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec.c                                             :+:      :+:    :+:   */
+/*   ft_bzero.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/25 17:32:37 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/25 17:32:53 by mobonill         ###   ########.fr       */
+/*   Created: 2024/04/22 15:15:22 by mobonill          #+#    #+#             */
+/*   Updated: 2024/04/25 20:28:39 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "libft.h"
+
+void	ft_bzero(void *s, size_t n)
+{
+	size_t	i;
+	char	*ptr;
+
+	ptr = (char *)s;
+	i = 0;
+	while (i < n)
+	{
+		ptr[i] = '\0' ;
+		i++;
+	}
+}

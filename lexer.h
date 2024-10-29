@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/28 17:29:36 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/10/29 22:17:47 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #ifndef LEXER_H
 # define LEXER_H
 
-# include "../libft/libft.h"
+# include "libft/libft.h"
 # include <limits.h>
 # include <fcntl.h>
 # include <stdio.h>
@@ -34,10 +34,6 @@
 # include <readline/history.h>
 # include <signal.h>
 
-// echo "Bonjour" | echo "Salut" > file.txt
-
-// LEXER ---> [echo] --> [Bonjour] ---> [ | ] ---> [echo] ---> [Salut] ---> [ > ] ----> [file.txt]
-//				0	 next	 0		next  1			  0			  0			  2				0
 
 typedef enum token
 {
@@ -47,9 +43,11 @@ typedef enum token
 	DOUBLEQUOTE,
 	IN_REDIR, // < 
 	OUT_REDIR, // >
+	DELIMITER, // <<
+	APPEND, // >>
 	HERE_DOC,
 	SPACES,
-} token ;
+}	token;
 
 typedef struct s_lexer
 {
@@ -58,6 +56,26 @@ typedef struct s_lexer
 
 }	t_lexer;
 
+
+typedef struct s_exec
+{
+	int	exit_status;
+	
+}	t_exec;
+
+typedef struct s_env
+{
+	char			*name;
+	char			*value;
+	struct s_env	*next;
+	t_list			*lst;
+}					t_env;
+
+// ENVP
+void init_envp(const char **envp);
+void	get_env_names_and_values(t_env *env);
+
+// LEXER
 void	minishell_loop();
 
 

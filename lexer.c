@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 19:38:52 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/28 17:25:47 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/10/29 18:59:01 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,34 +54,38 @@
 
 
 
-void	minishell_loop()
+// void	minishell_loop(const char **envp)
+// {
+// 	char *input;
+// 	char **lexer;
+// 	t_list	*new;
+// 	t_list	**lst;
+// 	int		i;
+
+
+// 	input = NULL;
+// 	i = 0;
+// 	// ft_lstnew(envpl);
+// 	// (char *)envpl->content = envp;
+// 	while(1)
+// 	{
+// 		input = readline("Minishell>");
+// 		if (!input)
+// 		{
+// 			printf("exit\n");
+// 			break;
+// 		}
+// 		add_history(input);
+
+// 	}
+// 	rl_clear_history();
+// 	free(input);
+// 	// free(lexer);
+// }
+
+int	main(int argc, char **av, const char **envp)
 {
-	char *input;
-	char **lexer;
-	t_list	*new;
-	t_list	**lst;
-	int		i;
-
-	input = NULL;
-	i = 0;
-	while(1)
-	{
-		input = readline("Minishell>");
-		if (!input)
-		{
-			printf("exit\n");
-			break;
-		}
-		add_history(input);
-
-	}
-	rl_clear_history();
-	free(input);
-	// free(lexer);
-}
-
-int	main()
-{
-	minishell_loop();
+	// minishell_loop(envp);
+	init_envp(envp);
 	return (0);
 }

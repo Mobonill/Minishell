@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/10/25 17:35:50 by mobonill         ###   ########.fr        #
+#    Updated: 2024/10/29 20:52:48 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,9 @@
 NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address 
-SRC =	./minishell.c \
+SRC =	./envp.c \
+		#./exec.c \
+		#./lexer.h \
 
 
 RM = rm -f

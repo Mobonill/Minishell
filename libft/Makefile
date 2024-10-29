@@ -19,6 +19,7 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	ft_strnstr.c \
 	ft_strlcpy.c \
 	ft_strlcat.c \
+	ft_strncpy.c \
 	ft_calloc.c \
 	ft_atoi.c \
 	ft_memmove.c \
@@ -38,8 +39,7 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	get_next_line/get_next_line_utils.c \
 	printf/ft_printf.c \
 	printf/ft_printf_utils.c \
-
-SRC_OBJ_B = ft_lstadd_front.c \
+	ft_lstadd_front.c \
 	ft_lstnew.c \
 	ft_lstsize.c \
 	ft_lstlast.c \
@@ -52,7 +52,6 @@ SRC_OBJ_B = ft_lstadd_front.c \
 RM = rm -f
 
 OBJ = $(SRC:.c=.o)
-OBJ_B = $(SRC_OBJ_B:.c=.o)
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)
@@ -66,10 +65,10 @@ $(NAME): $(OBJ) #libftprintf.a
 #	$(MAKE) -C printf
 
 bonus: $(OBJ) $(OBJ_B)
-	ar rcs $(NAME) $(OBJ) $(OBJ_B)
+	ar rcs $(NAME) $(OBJ)
 
 clean:
-	$(RM) $(OBJ) $(OBJ_B)
+	$(RM) $(OBJ)
 fclean: clean
 	$(RM) $(NAME)
 

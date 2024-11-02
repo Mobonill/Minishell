@@ -6,99 +6,132 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/29 23:46:17 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/02 17:52:17 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include "lexer.h"
 
+void	ft_envclear(t_env **env, void (*del)(void *))
+{
+	t_env	*temp;
+
+	while (*env)
+	{
+		temp = (*env)->next;
+		del((*env)->content);
+		if ((*env)->name)
+			free((*env)->name);
+		if ((*env)->value)
+			free((*env)->value);
+		free(*env);
+		*env = temp;
+	}
+}
 void	free_env(t_env *env)
 {
+	t_env	*cur;
 
-	while (env->lst != NULL)
+	cur = env;
+	while (cur != NULL)
 	{
-		free(env->name);
-		free(env->value);
-		ft_lstclear(&env->lst, free);
+		ft_envclear(&cur, free);
 	}
-	free(env);
 }
 
-// void	print_env(t_env *env)
-// {
-// 	t_list *curr = env->lst;
+void	print_env(t_env *env)
+{
+	t_env *cur = env;
+	
+	while (cur != NULL)
+	{
+		printf("name = %s\n", cur->name);
+		printf("value = %s\n", cur->value);
+		printf("index = %d\n", cur->index);
+		cur = cur->next;
+	}
+}
 
-// 	while (curr != NULL)
-// 	{
-// 		printf("%s\n", (char *)curr->content);
-// 		curr = curr->next;
-// 	}
-// }
+t_env	*ft_envnew(char *content)
+{
+	t_env	*env;
+
+	env = malloc(sizeof(t_env));
+	if (!env)
+		return (NULL);
+	env->content = content;
+	env->next = NULL;
+	return (env);
+}
+t_env	*ft_envlast(t_env *env)
+{
+	while (env && env->next)
+		env = env->next;
+	return (env);
+}
+
+void	ft_env_add_back(t_env **env, t_env *new)
+{
+	t_env	*nlast;
+
+	if (!(*env))
+	{
+		*env = new;
+		return ;
+	}
+	nlast = ft_envlast(*env);
+	nlast->next = new;
+}
 
 void	init_env(const char **envp)
 {
-	int		len;
 	t_env	*env;
+	t_env	*new_env;
 	int		i;
-	t_list	*new;
 
-	len = 0;
 	i = 0;
-	env = malloc(sizeof(t_env));
-	if (!env)
-		return;
-	env->lst = NULL;
-	while (envp[len] != NULL)
-		len++;
-	while (i != len)
+	env = NULL;
+	new_env = NULL;
+	while (envp[i])
 	{
-		new = ft_lstnew(ft_strdup(envp[i]));
-		if (!new)
+		new_env = ft_envnew(ft_strdup(envp[i]));
+		new_env->index = i;
+		if (!new_env)
 		{
-			ft_lstclear(&env->lst, free);
+			ft_envclear(&new_env, free);
 			free(envp);
 		}
-		ft_lstadd_back(&env->lst, new);
+		if (env == NULL)
+			env = new_env;
+		else
+			ft_env_add_back(&env, new_env);
 		i++;
 	}
-	// free_env(env);
-	// print_env(env);
 	get_env_names_and_values(env);
 }
 
 void	get_env_names_and_values(t_env *env)
 {
-	t_list	*cur;
+	t_env	*cur;
 	char	*limit;
 	int		len;
 
 	len = 0;
-	cur = env->lst;
+	cur = env;
 	while (cur != NULL)
 	{
 		limit = ft_strchr(cur->content, '=');
 		if (limit)
 		{
 			len = limit - (char *)cur->content;
-			env->name = malloc(sizeof(char) * len + 1);
-			// if (!env->name)
-			// 	return;
-			ft_strncpy(env->name, cur->content, len);
-			env->value = ft_strdup(limit + 1);
-			// if (!env->value)
-			// 	return;
+			cur->name = malloc(sizeof(char) * len + 1);
+			ft_strncpy(cur->name, cur->content, len);
+			cur->value = ft_strdup(limit + 1);
 		}
-		else
-		{
-			env->name = strdup(cur->content);
-			env->value = NULL;
-		}
-		// printf("name = %s\n", env->name);
-		// printf("value = %s\n", env->value);
 		cur = cur->next;
 	}
-	while(cur != NULL)
-		ft_lstclear(&cur, free);
+	print_env(env);
 	free_env(env);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/29 22:17:47 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/02 17:54:13 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,13 +67,20 @@ typedef struct s_env
 {
 	char			*name;
 	char			*value;
+	char			*content;
+	int				index;
 	struct s_env	*next;
-	t_list			*lst;
 }					t_env;
 
 // ENVP
-void init_envp(const char **envp);
+void	init_envp(const char **envp);
 void	get_env_names_and_values(t_env *env);
+void	ft_envclear(t_env **env, void (*del)(void *));
+t_env	*ft_envnew(char *content);
+t_env	*ft_envlast(t_env *env);
+void	ft_env_add_back(t_env **env, t_env *new);
+void	print_env(t_env *env);
+void	free_env(t_env *env);
 
 // LEXER
 void	minishell_loop();

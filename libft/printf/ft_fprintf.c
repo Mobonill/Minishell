@@ -6,7 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 17:40:30 by mobonill          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2024/11/07 17:00:40 by mobonill         ###   ########.fr       */
+=======
+/*   Updated: 2024/10/25 17:56:57 by mobonill         ###   ########.fr       */
+>>>>>>> 611f863 (add fprintf)
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +73,7 @@ int	ft_fprintf(int fd, const char *str, ...)
 }
 
 
+<<<<<<< HEAD
 // int	main(void)
 // {
 // 	char	*str;
@@ -80,6 +85,20 @@ int	ft_fprintf(int fd, const char *str, ...)
 // 	// printf("count str = %d \n", o);
 // 	ft_fprintf(1, "count str de ft printf = %d \n", o);
 // }
+=======
+int	main(void)
+{
+	int		i;
+	char	*str;
+	int		o;
+
+	i = 140;
+	str = "be brave and eat your vegetables";
+	o = ft_fprintf(1, "%s\n", str);
+	// printf("count str = %d \n", o);
+	ft_fprintf(1, "count str de ft printf = %d \n", o);
+}
+>>>>>>> 611f863 (add fprintf)
 
 // void test(int x, ...)
 // {

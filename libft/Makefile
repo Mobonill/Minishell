@@ -39,6 +39,8 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	get_next_line/get_next_line_utils.c \
 	printf/ft_printf.c \
 	printf/ft_printf_utils.c \
+	printf/ft_fprintf.c \
+	printf/ft_fprintf_utils.c \
 	ft_lstadd_front.c \
 	ft_lstnew.c \
 	ft_lstsize.c \

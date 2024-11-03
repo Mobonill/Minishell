@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/02 17:54:13 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/03 15:48:19 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,11 @@ typedef enum token
 
 typedef struct s_lexer
 {
-	char	*str;
-	int		token;
-
+	char    	*str;
+	t_tokens        token;
+	int		i;
+	struct s_lexer	*next;
+	struct s_lexer	*prev;
 }	t_lexer;
 
 
@@ -62,6 +64,17 @@ typedef struct s_exec
 	int	exit_status;
 	
 }	t_exec;
+
+typedef struct s_parser
+{
+	char                    **str;
+	int                     (*builtin)(t_tools *, struct s_simple_cmds *);
+	int                     num_redirections;
+	char                    *hd_file_name;
+	t_lexer                 *redirections;
+	struct s_parser	*next;
+	struct s_parser	*prev;
+}	t_parser;
 
 typedef struct s_env
 {

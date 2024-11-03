@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 17:32:37 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/29 17:38:16 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/03 15:34:38 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 void initialization_exec_struct(t_exec exec)
 {
 	exec.exit_status = 1; // si la cmd s'execute avec succes, exit.status = 0;
+}
+
+void	check_my_parseur(t_list parseur)
+{
+	
 }
 
 int	choose_exec(char *cmd)
@@ -48,4 +53,30 @@ void execute_minishell()
 {
 	if ()
 	 int execve(const char *pathname, char *const argv[], char *const envp[])
+}
+
+void	execute_command(char *cmd, t_pipes *pipes)
+{
+	char	*cmd_path;
+	char	**cmd_argv;
+
+	cmd_argv = ft_split(cmd, ' '); // en fonction des tokens
+	cmd_path = find_path(cmd_argv[0], pipes->envp);
+	if (!cmd_path)
+	{
+		ft_fprintf(2, "%s: command not found\n", cmd_argv[0]);
+		free_cmd_argv(cmd_argv);
+		free_all(pipes);
+		exit(127);
+	}
+	if (execve(cmd_path, cmd_argv, pipes->envp) == -1)
+	{
+		perror("Execve error");
+		free_cmd_argv(cmd_argv);
+		free(cmd_path);
+		free_all(pipes);
+		exit(126);
+	}
+	free(cmd_path);
+	free_cmd_argv(cmd_argv);
 }

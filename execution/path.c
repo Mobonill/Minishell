@@ -6,7 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
+<<<<<<< HEAD:execution/path.c
 /*   Updated: 2024/12/04 19:26:03 by mobonill         ###   ########.fr       */
+=======
+/*   Updated: 2024/11/03 15:18:26 by mobonill         ###   ########.fr       */
+>>>>>>> 7c5f969 (begin struct):path.c
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +23,15 @@ char	*get_envp_path(t_env *env)
 	cur = env;
 	while (cur != NULL)
 	{
+<<<<<<< HEAD:execution/path.c
 		if (ft_strncmp(cur->name, "PATH", 4) == 0 && cur->name[4] == '\0')
 			return (ft_strdup(cur->value));
 		cur = cur->next;
+=======
+		if (ft_strncmp(envp[i], "PATH", 4) == 0)
+			return (ft_substr(envp[i], 5, ft_strlen(envp[i]) - 5));
+		i++;
+>>>>>>> 7c5f969 (begin struct):path.c
 	}
 	return (NULL);
 }

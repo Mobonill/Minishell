@@ -6,11 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/03 15:18:26 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/05 14:02:42 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "lexer.h"
+#include "./include/lexer.h"
 
 char	*get_envp_path(char *const *envp)
 {

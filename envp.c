@@ -6,12 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/02 17:52:17 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/05 14:33:22 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include "lexer.h"
+#include "./include/lexer.h"
 
 void	ft_envclear(t_env **env, void (*del)(void *))
 {
@@ -84,7 +83,7 @@ void	ft_env_add_back(t_env **env, t_env *new)
 	nlast->next = new;
 }
 
-void	init_env(const char **envp)
+t_env	*init_env(const char **envp)
 {
 	t_env	*env;
 	t_env	*new_env;
@@ -109,6 +108,7 @@ void	init_env(const char **envp)
 		i++;
 	}
 	get_env_names_and_values(env);
+	return (env);
 }
 
 void	get_env_names_and_values(t_env *env)
@@ -131,14 +131,14 @@ void	get_env_names_and_values(t_env *env)
 		}
 		cur = cur->next;
 	}
-	print_env(env);
-	free_env(env);
+	// print_env(env);
+	// free_env(env);
 }
 
-int main(int argc, char **argv, const char **envp)
-{
-	argc = 0;
-	if (argv[0])
-		init_env(envp);
-	return (0);
-}
+// int main(int argc, char **av, const char **envp)
+// {
+// 	argc = 0;
+// 	if (av[0])
+// 		init_env(envp);
+// 	return (0);
+// }

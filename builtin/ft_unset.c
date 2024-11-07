@@ -6,39 +6,41 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 15:55:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/05 18:53:35 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/07 17:35:01 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/lexer.h"
 
-void	ft_unset(char **unset, t_env *env)
+void	ft_unset(char **unset, t_shell *shell)
 {
 	int		i;
 	t_env	*cur;
-	t_env	**head = NULL;
-	// t_env	*prev = NULL;
+	t_env	*prev;
 
 	i = 1; // j'ignore mon "unset"
-	while(unset[i] != NULL)
+	while (unset[i])
 	{
-		cur = env;
-		*head = cur;
-		printf(" i = %d\n", i);
-		printf("unset[i] = %s\n", unset[i]);
-		// while(cur != NULL)
-		// {
-		// 	if (strcmp(unset[i], cur->name) == 0)
-		// 	{
-		// 		if (*head == cur)
-		// 			*head = cur->next;
-		// 		else if (prev != NULL)
-		// 			prev->next = cur->next;
-		// 		free(cur);
-		// 	}
-		// 	cur = cur->next;
-			// prev->next = cur;
-		// }
+		cur = shell->env; // R
+		prev = NULL;
+		while (cur != NULL)
+		{
+			if (ft_strcmp(unset[i], cur->name) == 0)
+			{
+				if (prev == NULL)
+					cur = cur->next; // shell->env = tmp->next;
+				else
+					prev->next = cur->next; // prev->next =  shell->env->next
+				free(cur->name);
+				free(cur->value);
+				free(cur->content);
+				free(cur);
+				break;
+			}
+			prev = cur;
+			cur = cur->next;
+		}
 		i++;
 	}
+
 }

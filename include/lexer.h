@@ -6,13 +6,9 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/05 18:32:09 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/07 18:27:37 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
-// TO COMPILE : gcc lexer.c -lreadline
-
 
 #ifndef LEXER_H
 # define LEXER_H
@@ -82,8 +78,13 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
+typedef struct s_shell
+{
+	t_env	*env;
+}			t_shell ;
+
 // ENVP
-t_env	*init_env(const char **envp);
+t_shell	*init_env(const char **envp, t_shell *shell);
 void	get_env_names_and_values(t_env *env);
 void	ft_envclear(t_env **env, void (*del)(void *));
 t_env	*ft_envnew(char *content);
@@ -92,16 +93,18 @@ void	ft_env_add_back(t_env **env, t_env *new);
 void	print_env(t_env *env);
 void	free_env(t_env *env);
 
-// LEXER
-void	minishell_loop(t_env *env);
-
-// EXEC
-int		choose_exec(char *str, t_env *env);
-
 // BUILTIN
+void	ft_export(char	**export, t_shell *shell);
 void	ft_env(t_env *env);
 void	ft_pwd(t_env *env);
-void	ft_unset(char **unset, t_env *env);
+void	ft_unset(char **unset, t_shell *shell);
+// EXEC
+int		my_choosen_exec(char *str, t_shell *shell);
+
+
+// LEXER
+void	minishell_loop(t_shell *shell);
+
 
 
 #endif

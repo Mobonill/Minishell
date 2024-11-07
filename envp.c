@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/05 14:33:22 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/07 17:40:02 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,15 @@ void	ft_env_add_back(t_env **env, t_env *new)
 	nlast->next = new;
 }
 
-t_env	*init_env(const char **envp)
+t_shell	*init_env(const char **envp, t_shell *shell)
 {
-	t_env	*env;
 	t_env	*new_env;
 	int		i;
 
 	i = 0;
-	env = NULL;
+	shell = NULL;
+	shell = malloc(sizeof(t_env));
+	shell->env = NULL;
 	new_env = NULL;
 	while (envp[i])
 	{
@@ -101,14 +102,14 @@ t_env	*init_env(const char **envp)
 			ft_envclear(&new_env, free);
 			free(envp);
 		}
-		if (env == NULL)
-			env = new_env;
+		if (shell->env == NULL)
+			shell->env = new_env;
 		else
-			ft_env_add_back(&env, new_env);
+			ft_env_add_back(&shell->env, new_env);
 		i++;
 	}
-	get_env_names_and_values(env);
-	return (env);
+	get_env_names_and_values(shell->env);
+	return (shell);
 }
 
 void	get_env_names_and_values(t_env *env)
@@ -137,8 +138,11 @@ void	get_env_names_and_values(t_env *env)
 
 // int main(int argc, char **av, const char **envp)
 // {
+// 	t_shell *shell = NULL;
+	
 // 	argc = 0;
 // 	if (av[0])
-// 		init_env(envp);
+// 		shell = init_env(envp, shell);
+// 	free(shell);
 // 	return (0);
 // }

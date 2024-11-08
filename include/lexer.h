@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/07 18:27:37 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/07 20:09:39 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "../libft/libft.h"
 # include <limits.h>
 # include <fcntl.h>
+#include <stdbool.h>
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
@@ -98,6 +99,12 @@ void	ft_export(char	**export, t_shell *shell);
 void	ft_env(t_env *env);
 void	ft_pwd(t_env *env);
 void	ft_unset(char **unset, t_shell *shell);
+
+//BUILTIN UTILS
+void	swap_env(t_env *cur);
+void	sort_env_list(t_env *cur, t_shell *shell);
+bool	myListIsSorted(t_shell *shell);
+
 // EXEC
 int		my_choosen_exec(char *str, t_shell *shell);
 

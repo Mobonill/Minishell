@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/07 17:01:20 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/07 18:31:18 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,7 @@ SRC =	envp.c \
 		lexer.c \
 		builtin/ft_env.c \
 		builtin/ft_pwd.c \
+		builtin/ft_export.c \
 		builtin/ft_unset.c \
 		
 

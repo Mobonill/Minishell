@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/07 18:27:02 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/08 18:27:19 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int	my_choosen_exec(char *str, t_shell *shell)
 	};
 	char *export[] = {
 		"EXPORT" ,
+		"LESS=TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
 		"ttttttttttttttttt=tttttttttttt" ,
 		"452ffffffffffffffffffffff",
 		"_ttttttttttttttttttt"

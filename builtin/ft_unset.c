@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 15:55:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/07 17:35:01 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/09 16:25:37 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,4 @@ void	ft_unset(char **unset, t_shell *shell)
 		}
 		i++;
 	}
-
 }

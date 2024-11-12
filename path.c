@@ -6,20 +6,20 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/05 14:02:42 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/12 16:31:41 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./include/lexer.h"
 
-char	*get_envp_path(char *const *envp)
+char	*get_envp_path(t_env *env)
 {
-	int	i;
+	t_env	*cur;
 
-	i = 0;
-	while (envp[i])
+	cur = env;
+	while (cur != NULL)
 	{
-		if (ft_strncmp(envp[i], "PATH", 4) == 0)
+		if (ft_strncmp(cur->name, "PATH", 4) == 0)
 			return (ft_substr(envp[i], 5, ft_strlen(envp[i]) - 5));
 		i++;
 	}
@@ -59,13 +59,13 @@ void	free_path(char **path)
 	free(path);
 }
 
-char	*find_path(char *cmd, char *const *envp)
+char	*find_path(char *cmd, t_shell *shell)
 {
 	char	**path;
 	char	*envp_path;
 	char	*cmd_path;
 
-	envp_path = get_envp_path(envp);
+	envp_path = get_envp_path(shell->env);
 	if (!envp_path)
 	{
 		perror("PATH NOT FOUND IN ENVP");

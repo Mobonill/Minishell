@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/02 23:35:27 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/29 22:52:22 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/09 18:37:54 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ void				ft_putnbr_fd(int n, int fd);
 void				ft_putstr_fd(char *s, int fd);
 char				*ft_strchr(const char *s, int c);
 char				*ft_strdup(const char *s);
+char				*ft_strndup(const char *s, size_t n);
 size_t				ft_strlcat(char *dst, const char *src, size_t size);
 void				ft_strncpy(char *dst, const char *src, size_t size);
 size_t				ft_strlcpy(char *dst, const char *src, size_t size);

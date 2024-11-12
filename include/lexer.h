@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/07 20:09:39 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/12 16:25:01 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,18 @@ typedef struct s_env
 typedef struct s_shell
 {
 	t_env	*env;
+	t_env	*hidden;
 }			t_shell ;
+
+typedef struct s_exec
+{
+	int		**fd;
+	int		num_pipes;
+	char	**env;
+	char	*path;
+	pid_t	*pid;
+}			t_exec;
+
 
 // ENVP
 t_shell	*init_env(const char **envp, t_shell *shell);

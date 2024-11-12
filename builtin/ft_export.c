@@ -6,11 +6,30 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 19:54:56 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/08 18:31:38 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/12 15:19:03 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/lexer.h"
+
+void	modify_env_value(t_env *cur, char * limit)
+{
+	free(cur->value);
+	cur->value = ft_strdup(limit + 1);
+}
+
+void	create_new_env_node(char *to_compare, t_env *cur, char *limit, char *export)
+{
+	t_env	*new;
+
+	new = malloc(sizeof(t_env));
+	if (!new)
+		return;
+	new->content = strdup(export);
+	new->name = ft_strdup(to_compare);
+	new->value = ft_strdup(limit + 1);
+	ft_env_add_back(&cur, new);
+}
 
 void	ft_export(char	**export, t_shell *shell)
 {
@@ -18,30 +37,61 @@ void	ft_export(char	**export, t_shell *shell)
 	int		i;
 	char	*limit;
 	int		len;
+	char	*to_compare;
+	bool	exist;
+
+	(void)export;
 
 	i = 1;
 	len = 0;
 	cur = shell->env;
-	printf("%s\n", ft_strchr(export[i], '='));
 	while (export[i])
 	{
-		limit = ft_strchr(export[i], '=');
-		if (limit != NULL)
+		// if (!ft_strrchr(export[i], '='))
+		// {// s'il y a export VAR et pas de = : on stock la variable en attendant une value;
+		// 	shell->hidden = malloc(sizeof(t_env));
+		// 	shell->hidden->name = ft_strdup(ft_strrchr(export[i], '='));
+		// 	//il faut que je add back avec une cpy (voir mes fonctions d'env)
+		// 	shell->hidden = shell->hidden->next;
+		// }
+		exist = false;
+		if (ft_strchr(export[i], '=') && exist == false)
 		{
-			while (cur != NULL)
+			limit = ft_strchr(export[i], '=');
+			len = limit - export[i];
+			to_compare = ft_strndup(export[i], len);
+			while (cur != NULL && cur->next != NULL && export[i])
 			{
-				limit = ft_strchr(cur->content, '=');
-				if (limit)
+				if (ft_strcmp(to_compare, cur->name) == 0)
 				{
-					len = limit - export[i];
-
-					free(cur->value);
-					cur->value = ft_strdup(limit + 1);
+					modify_env_value(cur, limit);
+					exist = true;
+					break;
 				}
+				else if (ft_strcmp(to_compare, cur->name) != 0 && exist == false)
+					create_new_env_node(to_compare, cur, limit, export[i]);
+				cur = cur->next;
 			}
+			free(to_compare);
 		}
+	// 	if (limit != NULL)
+	// 	{
+	// 		while (cur != NULL)
+	// 		{
+	// 			// limit = ft_strchr(cur->content, '=');
+	// 			// if (limit)
+	// 			// {
+	// 			// 	len = limit - export[i];
+	// 			// 	free(cur->value);
+	// 			// 	cur->value = ft_strdup(limit + 1);
+	// 			// }
+	// 			cur = cur->next;
+	// 		}
+	// 	}
+		i++;
 	}
 	// sort_env_list(cur, shell);
+	cur = shell->env;
 	while (cur != NULL)
 	{
 		printf("%s",cur->name);
@@ -49,7 +99,6 @@ void	ft_export(char	**export, t_shell *shell)
 		printf("%s\n", cur->value);
 		cur = cur->next;
 	}
-
 }
 void	swap_env(t_env *cur)
 {
@@ -81,7 +130,6 @@ void	sort_env_list(t_env *cur, t_shell *shell)
 		if (ft_strcmp(cur->name, cur->next->name) > 0)
 		{
 			swap_env(cur); 
-			cur = shell->env;
 			check= true;
 		}
 		// if (myListIsSorted(shell) == true)

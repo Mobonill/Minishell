@@ -14,6 +14,7 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	ft_strcmp.c \
 	ft_strncmp.c \
 	ft_strdup.c \
+	ft_strndup.c \
 	ft_memcmp.c \
 	ft_memchr.c \
 	ft_strnstr.c \

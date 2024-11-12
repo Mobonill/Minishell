@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/12 16:25:19 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/12 18:41:37 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,11 +17,12 @@ LREAD = -lreadline
 SRC =	envp.c \
 		execution.c \
 		lexer.c \
+		open_and_free.c \
+		path.c \
 		builtin/ft_env.c \
 		builtin/ft_pwd.c \
 		builtin/ft_export.c \
 		builtin/ft_unset.c \
-		path.c \
 		
 
 RM = rm -f

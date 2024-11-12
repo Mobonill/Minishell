@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/12 16:31:41 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/12 17:55:38 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ char	*get_envp_path(t_env *env)
 	while (cur != NULL)
 	{
 		if (ft_strncmp(cur->name, "PATH", 4) == 0)
-			return (ft_substr(envp[i], 5, ft_strlen(envp[i]) - 5));
-		i++;
+			return (ft_substr(cur->value));
+		cur = cur->next;
 	}
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/12 16:29:34 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/12 19:42:56 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,27 +69,123 @@ int	my_choosen_exec(char *str, t_shell *shell)
 void	execute_minishell(t_shell *shell, t_parser *parser)
 {
 	t_exec	*exec;
+	int		i;
 
 	exec = malloc(sizeof(t_exec));
-	exec->env = 
-	exec->path = find_path(parser->cmd[0], shell);
-	exec->num_pipes = 
-	exec->fd
-
-	exec->pid = malloc(sizeof(pid_t) * exec->num_cmds);
-	int	i;
-
-	i = -1;
+	exec->env = shell->env;
+	exec->path = find_path(parser->cmd[i], shell);
+	exec->num_pipes = parser->num_redirections;
+	exec->pid = malloc(sizeof(pid_t) * parser->num_redirections + 1);
 	exec->fd = malloc(sizeof(int *) * exec->num_pipes);
 	if (!exec->fd)
 		return (errno);
-	while (++i < pipes->num_pipes)
+	i = -1;
+	while (++i < exec->num_pipes)
 	{
-		pipes->fd[i] = malloc(sizeof(int) * 2);
-		if (pipe(pipes->fd[i]) == -1)
+		exec->fd[i] = malloc(sizeof(int) * 2);
+		if (pipe(exec->fd[i]) != 1)
 		{
-			free_pipes(pipes);
+			free_pipes(exec);
 			return (errno);
 		}
 	}
+	fork_system_call(parser, exec);
+}
+void	fork_system_call(t_parser *parser, t_exec *exec)
+{
+	int	i;
+
+	i = -1;
+	if (!exec->pid)
+	{
+		perror("Malloc error");
+		free_pipes(exec);
+		exit(errno);
+	}
+	while (++i <= parser->num_redirections)
+	{
+		exec->pid[i] = fork();
+		if (exec->pid[i] < 0)
+		{
+			perror("Fork error");
+			free_all(exec);
+			exit(errno);
+		}
+		else if (exec->pid[i] == 0)
+			child_process(exec, parser->cmd, i);
+	}
+	parent_process(exec);
+}
+int	manage_dup(int oldfd, int newfd)
+{
+	if (dup2(oldfd, newfd) < 0)
+		return (errno);
+	return (0);
+}
+
+int	child_process(t_exec *exec, t_parser *parser, int i)
+{
+	if (i == 0)
+	{
+		open_input(exec, parser);
+		manage_dup(exec->input, STDIN_FILENO);
+		close(exec->input);
+		manage_dup(exec->fd[i][1], STDOUT_FILENO);
+		close(exec->fd[i][1]);
+	}
+	else if (i == exec->num_pipes)
+	{
+		open_output(exec, parser);
+		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
+		close(exec->fd[i - 1][0]);
+		manage_dup(exec->output, STDOUT_FILENO);
+		close(exec->output);
+	}
+	else
+	{
+		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
+		close(exec->fd[i - 1][0]);
+		manage_dup(exec->fd[i][1], STDOUT_FILENO);
+		close(exec->fd[i][1]);
+	}
+	closing_child_pipes(exec, parser);
+	exit(0);
+}
+void	closing_child_pipes(t_exec *exec, t_parser *parser)
+{
+	int	j;
+
+	j = -1;
+	while (++j < exec->num_pipes)
+	{
+		close(exec->fd[j][0]);
+		close(exec->fd[j][1]);
+	}
+	execute_command(parser, exec);
+}
+
+void	execute_command(t_parser *parser, t_exec *exec)
+{
+	char	*cmd_path;
+	t_env	*cur;
+
+	cur = exec->env;
+	cmd_path = find_path(parser->cmd[0], exec->env);
+	if (!cmd_path)
+	{
+		ft_fprintf(2, "%s: command not found\n", parser->cmd);
+		free_cmd_argv(parser->cmd);
+		free_all(exec);
+		exit(127);
+	}
+	if (execve(cmd_path, parser->cmd, exec->env) == -1)
+	{
+		perror("Execve error");
+		free_cmd_argv(parser->cmd);
+		free(cmd_path);
+		free_all(exec);
+		exit(126);
+	}
+	free(cmd_path);
+	free_cmd_argv(parser->cmd);
 }

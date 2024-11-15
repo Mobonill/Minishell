@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/12 19:42:56 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/14 19:28:56 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,18 +72,20 @@ void	execute_minishell(t_shell *shell, t_parser *parser)
 	int		i;
 
 	exec = malloc(sizeof(t_exec));
+	if (!exec)
+		return (errno);
 	exec->env = shell->env;
 	exec->path = find_path(parser->cmd[i], shell);
 	exec->num_pipes = parser->num_redirections;
 	exec->pid = malloc(sizeof(pid_t) * parser->num_redirections + 1);
-	exec->fd = malloc(sizeof(int *) * exec->num_pipes);
-	if (!exec->fd)
+	exec->fd = malloc(sizeof(int *) * exec->num_pipes + 1); //1 ofr redirection
+	if (!exec->fd || !exec->pid)
 		return (errno);
 	i = -1;
 	while (++i < exec->num_pipes)
 	{
 		exec->fd[i] = malloc(sizeof(int) * 2);
-		if (pipe(exec->fd[i]) != 1)
+		if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
 		{
 			free_pipes(exec);
 			return (errno);
@@ -188,4 +190,31 @@ void	execute_command(t_parser *parser, t_exec *exec)
 	}
 	free(cmd_path);
 	free_cmd_argv(parser->cmd);
+}
+
+void	parent_process(t_exec *exec)
+{
+	int	i;
+	int	final_status;
+
+	i = 0;
+	final_status = 0;
+	while (i < exec->num_pipes)
+	{
+		close(exec->fd[i][0]);
+		close(exec->fd[i][1]);
+		++i;
+	}
+	i = 0;
+	while (i <= exec->num_pipes)
+	{
+		waitpid(exec->pid[i], &exec->status, 0);
+		if (WIFEXITED(exec->status))
+			final_status = WEXITSTATUS(exec->status);
+		else if (WIFSIGNALED(exec->status))
+			final_status = 128 + WTERMSIG(exec->status);
+		i++;
+	}
+	free_all(exec);
+	exit(final_status);
 }

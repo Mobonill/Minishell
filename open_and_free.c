@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   open_and_free.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/14 19:23:37 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/16 17:24:26 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ void	open_output(t_exec *exec, t_parser *parser)
 	cur = parser->redirections;
 	while (cur && parser->redirections->str != OUT_REDIR)
 		cur = cur->next;
+	// if (exec->heredoc != NULL)
+	// 	exec->output = open(cur->str, O_APPEND);
 	exec->output = open(cur->str, O_CREAT | O_RDWR | O_TRUNC, 0666);
 	if (exec->output < 0)
 	{

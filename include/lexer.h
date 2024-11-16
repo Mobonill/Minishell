@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/12 18:42:00 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/16 17:14:50 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ typedef struct s_exec
 	int		num_pipes;
 	char	**env;
 	char	*path;
+	char	*heredoc;
 	pid_t	*pid;
 }			t_exec;
 

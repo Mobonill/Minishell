@@ -3,16 +3,34 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/14 19:28:56 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/16 18:16:27 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./include/lexer.h"
 
-int	my_choosen_exec(char *str, t_shell *shell)
+void	ft_handle_heredoc(t_parser *parser)
+{
+	char	*line;
+	int		tmp_fd;
+
+	line = NULL;
+	
+	open()
+	while (1)
+	{
+		readline(">");
+		line = get_next_line(tmp_fd); 
+		if (ft_strcmp(line, parser->cmd[1]) == 0)
+			break;
+	}
+}
+
+
+int	my_choosen_exec(char *str, t_shell *shell, t_parser *parser)
 {
 	char *unset[] = {
 		"UNSET" ,
@@ -33,14 +51,18 @@ int	my_choosen_exec(char *str, t_shell *shell)
 		"t=454ttttttttttttttttttttt",
 		NULL
 	};
-	// t_env *cur = shell->env;
-	// while(cur != NULL)
-	// {
-	// 	printf("%s", cur->name);
-	// 	printf("=");
-	// 	printf("%s\n", cur->value);
-	// 	cur = cur->next;
-	// }
+	t_parser *cur;
+
+	cur = NULL;
+	while (cur != NULL)
+	{
+		if (cur->redirections->str == HERE_DOC)
+		{
+			ft_handle_heredoc(parser);
+		}
+		cur = cur->next;
+	}
+
 	
 	// si on a un shell->hidden, on strcmp(cdm, hidden) et si c'est == et qu'il y a un = juste apres, on entre une value et on add le node.
 	// // if (shell->hidden)
@@ -79,6 +101,7 @@ void	execute_minishell(t_shell *shell, t_parser *parser)
 	exec->num_pipes = parser->num_redirections;
 	exec->pid = malloc(sizeof(pid_t) * parser->num_redirections + 1);
 	exec->fd = malloc(sizeof(int *) * exec->num_pipes + 1); //1 ofr redirection
+	exec->heredoc = NULL;
 	if (!exec->fd || !exec->pid)
 		return (errno);
 	i = -1;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/16 18:16:27 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/18 19:08:55 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,25 @@ void	ft_handle_heredoc(t_parser *parser)
 
 	line = NULL;
 	
-	open()
+	tmp_fd = open(".heredoc_tmp", O_CREAT | O_WRONLY | O_TRUNC, 0600);
 	while (1)
 	{
 		readline(">");
 		line = get_next_line(tmp_fd); 
-		if (ft_strcmp(line, parser->cmd[1]) == 0)
+		if (!line || ft_strcmp(line, parser->cmd[1]) == 0)
 			break;
+	if (tmp_fd < 0)
+	{
+		perror("heredoc");
+		exit(1);
 	}
+		write(tmp_fd, line, ft_strlen(line));
+		write(tmp_fd, "\n", 1);
+		free(line);
+	}
+	free(line);
+	close(tmp_fd);
+	return (tmp_fd);
 }
 
 
@@ -153,8 +164,11 @@ int	child_process(t_exec *exec, t_parser *parser, int i)
 	if (i == 0)
 	{
 		open_input(exec, parser);
-		manage_dup(exec->input, STDIN_FILENO);
-		close(exec->input);
+		if (exec->input != -1)
+		{
+			manage_dup(exec->input, STDIN_FILENO);
+			close(exec->input);
+		}
 		manage_dup(exec->fd[i][1], STDOUT_FILENO);
 		close(exec->fd[i][1]);
 	}

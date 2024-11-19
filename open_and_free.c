@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   open_and_free.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/16 17:24:26 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/18 17:28:36 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,31 @@
 
 void	open_input(t_exec *exec, t_parser *parser)
 {
-	t_lexer	*cur;
+	t_parser	*cur;
 
-	cur = parser->redirections;
-	while (cur && parser->redirections->str != IN_REDIR)
-		cur = cur->next;
-	exec->input = open(cur->str, O_RDONLY);
-	if (exec->input < 0)
+	cur = parser;
+	exec->input = -1;
+	while (cur != NULL)
 	{
-		ft_fprintf(2, "bash: %s: %s", cur->str, perror);
-		free(exec->pid);
-		exit(1);
+		if (cur->redirections->str == IN_REDIR)
+		{
+			if (exec->input != -1)
+				close(exec->input);
+			exec->input = open(cur->cmd[0], O_RDONLY);
+			if (exec->input < 0)
+			{
+				ft_fprintf(2, "bash: %s: %s", cur->redirections->str, perror);
+				free(exec->pid);
+				exit(1);
+			}
+		}
+		else if (cur->redirections->str == "DELIMITER")
+		{
+			if (exec->input != -1)
+				close(exec->input);
+			exec->input = ft_handle_heredoc(cur);
+		}
+		cur = cur->next;
 	}
 }
 

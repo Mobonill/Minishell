@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/12 17:55:38 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/19 18:19:36 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	free_path(char **path)
 	free(path);
 }
 
-char	*find_path(char *cmd, t_shell *shell)
+char	*find_path(t_simple_cmds *parser, t_shell *shell)
 {
 	char	**path;
 	char	*envp_path;
@@ -73,7 +73,7 @@ char	*find_path(char *cmd, t_shell *shell)
 	}
 	path = ft_split(envp_path, ':');
 	free(envp_path);
-	cmd_path = find_command_in_path(cmd, path);
+	cmd_path = find_command_in_path(parser->str[0], path);
 	free_path(path);
 	return (cmd_path);
 }

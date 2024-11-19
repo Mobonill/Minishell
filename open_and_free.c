@@ -3,95 +3,150 @@
 /*                                                        :::      ::::::::   */
 /*   open_and_free.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/18 17:28:36 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/19 17:57:48 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./include/lexer.h"
 
-
-void	open_input(t_exec *exec, t_parser *parser)
+void open_input(t_exec *exec, t_simple_cmds *parser)
 {
-	t_parser	*cur;
+	t_simple_cmds *cur;
 
 	cur = parser;
 	exec->input = -1;
 	while (cur != NULL)
 	{
-		if (cur->redirections->str == IN_REDIR)
+		if (cur->redirections->token == 2)
 		{
 			if (exec->input != -1)
 				close(exec->input);
-			exec->input = open(cur->cmd[0], O_RDONLY);
+			printf("cur->redir->str = %s\n", cur->redirections->str);
+			exec->input = open(cur->redirections->str, O_RDONLY);
+			printf("exec->input = %d\n", exec->input);
 			if (exec->input < 0)
 			{
-				ft_fprintf(2, "bash: %s: %s", cur->redirections->str, perror);
+				ft_fprintf(2, "bash: %s: ", cur->redirections->str);
+				perror("");
 				free(exec->pid);
 				exit(1);
 			}
 		}
-		else if (cur->redirections->str == "DELIMITER")
+		else if (cur->redirections->token == 3)
 		{
 			if (exec->input != -1)
 				close(exec->input);
 			exec->input = ft_handle_heredoc(cur);
+			// restaurer les signaux;
 		}
 		cur = cur->next;
 	}
 }
 
-void	open_output(t_exec *exec, t_parser *parser)
+int main()
 {
-	t_lexer	*cur;
+	t_exec exec;
+	t_simple_cmds cmd1, cmd2, cmd3, cmd4;
+	t_lexer redir1, redir2, redir3, redir4;
 
-	cur = parser->redirections;
-	while (cur && parser->redirections->str != OUT_REDIR)
-		cur = cur->next;
-	// if (exec->heredoc != NULL)
-	// 	exec->output = open(cur->str, O_APPEND);
-	exec->output = open(cur->str, O_CREAT | O_RDWR | O_TRUNC, 0666);
-	if (exec->output < 0)
+	// Simule les redirections
+	redir1.token = 2; // <
+	redir1.str = "infile1";
+	redir2.token = 3; // <<
+	redir2.str = "eof";
+	redir3.token = 2; // <
+	redir3.str = "infile2";
+	redir4.token = 3;
+	redir4.str = "end";
+
+	// Simule les commandes chaînées
+	cmd1.redirections = &redir1;
+	cmd1.next = &cmd2;
+
+	cmd2.redirections = &redir2;
+	cmd2.next = &cmd3;
+
+	cmd3.redirections = &redir3;
+	cmd3.next = &cmd4;
+
+	cmd4.redirections = &redir4;
+	cmd4.next = NULL;
+
+	// Initialise l'exécution
+	exec.input = -1;
+	exec.pid = malloc(sizeof(int) * 1);
+
+	// Appelle open_input
+	open_input(&exec, &cmd1);
+
+	// Vérifie l'état final
+	if (exec.input != -1)
 	{
-		ft_fprintf(2, "bash: %s: %s", cur->str, perror);
-		free_pipes(exec);
-		free(exec->pid);
-		exit(1);
+		printf("Final input descriptor: %d\n", exec.input);
+		close(exec.input);
 	}
-}
-void	free_pipes(t_exec *exec)
-{
-	int	i;
 
-	i = 0;
-	if (exec->fd)
-	{
-		i = 0;
-		while (i <= exec->num_pipes + 2) // pour les redirections
-		{
-			free(exec->fd[i]);
-			i++;
-		}
-		free(exec->fd);
-	}
-}
-void	free_all(t_exec *exec)
-{
-	free_pipes(exec);
-	free(exec->pid);
+	free(exec.pid);
+	return 0;
 }
 
-void	free_cmd_argv(t_parser *parser)
-{
-	int	i;
+// void open_output(t_exec *exec, t_simple_cmds *parser)
+// {
+// 	t_parser *cur;
 
-	i = 0;
-	while (parser->cmd[i])
-	{
-		free(parser->cmd[i]);
-		i++;
-	}
-	free(parser->cmd);
-}
+// 	cur = parser;
+// 	while (cur != NULL)
+// 	{
+// 		if (cur->redirections->token == 4)
+// 		{
+// 			if (exec->output != -1)
+// 				close(exec->output);
+// 			exec->output = open(cur->redirections->str, O_CREAT | O_RDWR | O_TRUNC, 0666);
+// 			if (exec->output < 0)
+// 			{
+// 				ft_fprintf(2, "bash: %s: %s", cur->redirections->str, perror);
+// 				free_pipes(exec);
+// 				free(exec->pid);
+// 				exit(1);
+// 			}
+// 		}
+// 		cur = cur->next;
+// 	}
+// }
+// void free_pipes(t_exec *exec)
+// {
+// 	int i;
+
+// 	i = 0;
+// 	if (exec->fd)
+// 	{
+// 		i = 0;
+// 		while (i <= exec->num_pipes + 2) // pour les redirections
+// 		{
+// 			free(exec->fd[i]);
+// 			i++;
+// 		}
+// 		free(exec->fd);
+// 	}
+// }
+// void free_all(t_exec *exec)
+// {
+// 	free_pipes(exec);
+// 	free(exec->pid);
+// }
+
+// void free_cmd_argv(t_simple_cmds *parser)
+// {
+// 	int i;
+
+// 	i = 0;
+// 	while (parser->cmd[i])
+// 	{
+// 		free(parser->cmd[i]);
+// 		i++;
+// 	}
+// 	free(parser->cmd);
+// }

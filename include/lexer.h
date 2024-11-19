@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/16 17:14:50 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/19 18:21:05 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include "../libft/libft.h"
 # include <limits.h>
 # include <fcntl.h>
-#include <stdbool.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
@@ -36,14 +36,10 @@ typedef enum s_token
 {
 	WORD,
 	PIPE,
-	SIMPLEQUOTE,
-	DOUBLEQUOTE,
-	IN_REDIR, // < 
-	OUT_REDIR, // >
-	DELIMITER, // <<
-	APPEND, // >>
-	HERE_DOC,
-	SPACES,
+	IN,    //<
+	HEREDOC, // <<
+	OUT, //>
+	APPEND, //>>
 }	t_token;
 
 typedef struct s_lexer
@@ -55,20 +51,15 @@ typedef struct s_lexer
 }					t_lexer;
 
 
-typedef struct s_exec
+typedef struct s_simple_cmds
 {
-	int	exit_status;
-	
-}		t_exec;
-
-typedef struct s_parser
-{
-	char	**cmd;
-	int		num_redirections;
-	char	*hd_file_name;
-	t_lexer	*redirections;
-	struct	s_parser *next;
-} 			t_parser;
+	char					**str;
+	int						num_redirections;
+	char					*hd_file_name;
+	t_lexer					*redirections;
+	struct s_simple_cmds	*next;
+	struct s_simple_cmds	*prev;
+}	t_simple_cmds;
 
 typedef struct s_env
 {
@@ -108,23 +99,21 @@ void	ft_env_add_back(t_env **env, t_env *new);
 void	print_env(t_env *env);
 void	free_env(t_env *env);
 
-// BUILTIN
-void	ft_export(char	**export, t_shell *shell);
-void	ft_env(t_env *env);
-void	ft_pwd(t_env *env);
-void	ft_unset(char **unset, t_shell *shell);
-
+// BUILTIN(tmp_fd)
 //BUILTIN UTILS
 void	swap_env(t_env *cur);
 void	sort_env_list(t_env *cur, t_shell *shell);
 
 // EXEC
 int		my_choosen_exec(char *str, t_shell *shell);
+int		ft_handle_heredoc(t_simple_cmds *parser);
+void	execute_minishell(t_shell *shell, t_simple_cmds *parser);
+void	fork_system_call(t_simple_cmds *parser, t_exec *exec);
+int		manage_dup(int oldfd, int newfd);
 
 
 // LEXER
 void	minishell_loop(t_shell *shell);
-
 
 
 #endif

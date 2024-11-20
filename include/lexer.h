@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/19 18:21:05 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/20 14:49:57 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,8 @@ typedef struct s_shell
 
 typedef struct s_exec
 {
-	int		input;
-	int		output;
 	int		**fd;
+	int		status;
 	int		num_pipes;
 	char	**env;
 	char	*path;

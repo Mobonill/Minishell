@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   path.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/19 18:19:36 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/20 13:28:02 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ char	*get_envp_path(t_env *env)
 	cur = env;
 	while (cur != NULL)
 	{
-		if (ft_strncmp(cur->name, "PATH", 4) == 0)
+		if (ft_strncmp(cur->name, "PATH", 4) == 0 && cur->name[4] == '\0')
 			return (ft_substr(cur->value));
 		cur = cur->next;
 	}
@@ -33,6 +33,15 @@ char	*find_command_in_path(char *cmd, char **path)
 	int		i;
 
 	i = 0;
+	if (ft_strchr(cmd, '/'))
+	{
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		else
+			return (NULL);
+	}
+	if (!path)
+		return (NULL);
 	while (path[i])
 	{
 		temp_path = ft_strjoin(path[i], "/");
@@ -65,14 +74,21 @@ char	*find_path(t_simple_cmds *parser, t_shell *shell)
 	char	*envp_path;
 	char	*cmd_path;
 
+	if (!parser->str || !parser->str[0])
+		return (NULL);
 	envp_path = get_envp_path(shell->env);
-	if (!envp_path)
+	if (!envp_path || ft_strlen(envp_path) == 0)
 	{
-		perror("PATH NOT FOUND IN ENVP");
+		free(envp_path);
+		if (access(parser->cmd[0], X_OK) == 0)
+			return (ft_strdup(parser->cmd[0]));
+		perror("");
 		return (NULL);
 	}
 	path = ft_split(envp_path, ':');
 	free(envp_path);
+	if (!path)
+		return (NULL);
 	cmd_path = find_command_in_path(parser->str[0], path);
 	free_path(path);
 	return (cmd_path);

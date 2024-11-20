@@ -3,54 +3,164 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/20 14:52:24 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/20 17:41:32 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./include/lexer.h"
 
-void	signal_heredoc(int sig)
+char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
 {
-	if (sig == SIGINT)
+	t_env	*cur;
+
+	cur = shell->env;
+	while (cur != NULL)
 	{
-		write(1, "\n", 1);
-		exit(130);
+		cur
+		cur = cur->next;
 	}
+	shell->env
+
+	return(exec->env);
+}
+int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
+{
+	t_exec	*exec;
+	int		i;
+
+	exec = malloc(sizeof(t_exec));
+	if (!exec)
+		return (errno);
+	exec->env = shell->env;
+	exec->path = find_path(parser, shell);
+	exec->num_pipes = parser->num_redirections;
+	exec->pid = malloc(sizeof(pid_t) * exec->num_pipes + 1);
+	exec->fd = malloc(sizeof(int *) * exec->num_pipes); 
+	if (!exec->fd || !exec->pid)
+	{
+		perror("");
+		free_pipes(exec);
+		return (errno);
+	}
+	i = -1;
+	while (++i < exec->num_pipes)
+	{
+		exec->fd[i] = malloc(sizeof(int) * 2);
+		if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
+		{
+			free_pipes(exec); // free(exec->pid);
+			return (errno);
+		}
+	}
+	fork_system_call(parser, exec, shell);
+}
+void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
+{
+	int	i;
+
+	i = -1;
+	while (++i <= parser->num_redirections)
+	{
+		exec->pid[i] = fork();
+		if (exec->pid[i] < 0)
+		{
+			perror("");
+			free_all(exec);
+			exit(errno);
+		}
+		else if (exec->pid[i] == 0)
+			child_process(exec, parser, i, shell);
+	}
+	parent_process(exec);
 }
 
-void	heredoc_signals(void)
+int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
-	signal(SIGINT, signal_heredoc);
-	signal(SIGQUIT, SIG_IGN);
+	if (i == 0)
+	{
+		open_input(exec, parser);
+		if (exec->input != -1)
+		{
+			manage_dup(exec->input, STDIN_FILENO);
+			close(exec->input);
+		}
+		manage_dup(exec->fd[i][1], STDOUT_FILENO);
+		// close(exec->fd[i][1]);
+	}
+	else if (i == exec->num_pipes)
+	{
+		open_output(exec, parser);
+		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
+		close(exec->fd[i - 1][0]);
+		// manage_dup(exec->output, STDOUT_FILENO);
+		// close(exec->output);
+	}
+	else
+	{
+		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
+		// close(exec->fd[i - 1][0]);
+		manage_dup(exec->fd[i][1], STDOUT_FILENO);
+		// close(exec->fd[i][1]);
+	}
+	closing_child_pipes(exec, parser);
+	execute_command(parser, shell, exec);
+	exit(0);
 }
-int	ft_handle_heredoc(t_simple_cmds *parser)
-{
-	char	*line;
-	int		tmp_fd;
 
-	line = NULL;
-	tmp_fd = open(".heredoc_tmp", O_CREAT | O_WRONLY | O_TRUNC, 0600);
-	if (tmp_fd < 0)
+void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
+{
+	char	*cmd_path;
+	t_env	*cur;
+
+	cur = exec->env;
+	cmd_path = find_path(parser, shell->env);
+	if (!cmd_path)
 	{
-		perror("heredoc");
-		exit(1);
+		ft_fprintf(2, "%s: command not found\n", parser->str[0]);
+		free_cmd_argv(parser->str);
+		free_all(exec);
+		exit(127);
 	}
-	while (1)
+	if (execve(cmd_path, parser->str, exec->env) == -1)
 	{
-		line = readline(">");
-		heredoc_signals();
-		if (!line || ft_strcmp(line, parser->redirections->str) == 0)
-			break;
-		ft_fprintf(tmp_fd, "%s\n", line);
-		free(line);
+		perror(parser->str[0]);
+		free(cmd_path);
+		free_cmd_argv(parser->str);
+		free_all(exec);
+		exit(126);
 	}
-	free(line);
-	close(tmp_fd);
-	tmp_fd = open(".heredoc_tmp", O_RDONLY);
-	return (tmp_fd);
+	free(cmd_path);
+	free_cmd_argv(parser->str);
+}
+
+void	parent_process(t_exec *exec)
+{
+	int	i;
+	int	final_status;
+
+	i = 0;
+	final_status = 0;
+	while (i < exec->num_pipes)
+	{
+		close(exec->fd[i][0]);
+		close(exec->fd[i][1]);
+		++i;
+	}
+	i = 0;
+	while (i <= exec->num_pipes)
+	{
+		waitpid(exec->pid[i], &exec->status, 0);
+		if (WIFEXITED(exec->status))
+			final_status = WEXITSTATUS(exec->status);
+		else if (WIFSIGNALED(exec->status))
+			final_status = 128 + WTERMSIG(exec->status);
+		i++;
+	}
+	free_all(exec);
+	exit(final_status);
 }
 
 
@@ -110,158 +220,4 @@ int	ft_handle_heredoc(t_simple_cmds *parser)
 // 		// return (ft_exit);
 // 	else
 // 		execute_minishell();
-// }
-
-void	execute_minishell(t_shell *shell, t_simple_cmds *parser)
-{
-	t_exec	*exec;
-	int		i;
-
-	exec = malloc(sizeof(t_exec));
-	if (!exec)
-		return (errno);
-	exec->env = shell->env;
-	exec->path = find_path(parser, shell);
-	exec->num_pipes = parser->num_redirections;
-	exec->pid = malloc(sizeof(pid_t) * exec->num_pipes + 1);
-	exec->fd = malloc(sizeof(int *) * exec->num_pipes); 
-	if (!exec->fd || !exec->pid)
-	{
-		perror("");
-		free_pipes(exec);
-		return (errno);
-	}
-	i = -1;
-	while (++i < exec->num_pipes)
-	{
-		exec->fd[i] = malloc(sizeof(int) * 2);
-		if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
-		{
-			free_pipes(exec); // free(exec->pid)
-			return (errno);
-		}
-	}
-	fork_system_call(parser, exec);
-}
-void	fork_system_call(t_simple_cmds *parser, t_exec *exec)
-{
-	int	i;
-
-	i = -1;
-	while (++i <= parser->num_redirections)
-	{
-		exec->pid[i] = fork();
-		if (exec->pid[i] < 0)
-		{
-			perror("");
-			free_all(exec);
-			exit(errno);
-		}
-		else if (exec->pid[i] == 0)
-			child_process(exec, parser, i);
-	}
-	parent_process(exec);
-}
-int	manage_dup(int oldfd, int newfd)
-{
-	if (dup2(oldfd, newfd) < 0)
-		return (errno);
-	return (0);
-}
-
-int	child_process(t_exec *exec, t_simple_cmds *parser, int i)
-{
-	if (i == 0)
-	{
-		open_input(exec, parser);
-		if (exec->input != -1)
-		{
-			manage_dup(exec->input, STDIN_FILENO);
-			close(exec->input);
-		}
-		manage_dup(exec->fd[i][1], STDOUT_FILENO);
-		// close(exec->fd[i][1]);
-	}
-	else if (i == exec->num_pipes)
-	{
-		open_output(exec, parser);
-		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
-		close(exec->fd[i - 1][0]);
-		// manage_dup(exec->output, STDOUT_FILENO);
-		// close(exec->output);
-	}
-	else
-	{
-		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
-		// close(exec->fd[i - 1][0]);
-		manage_dup(exec->fd[i][1], STDOUT_FILENO);
-		// close(exec->fd[i][1]);
-	}
-	closing_child_pipes(exec, parser);
-	execute_command(parser, exec);
-	exit(0);
-}
-void	closing_child_pipes(t_exec *exec, t_simple_cmds *parser)
-{
-	int	j;
-
-	j = -1;
-	while (++j < exec->num_pipes)
-	{
-		close(exec->fd[j][0]);
-		close(exec->fd[j][1]);
-	}
-}
-
-// void	execute_command(t_simple_cmds *parser, t_exec *exec)
-// {
-// 	char	*cmd_path;
-// 	t_env	*cur;
-
-// 	cur = exec->env;
-// 	cmd_path = find_path(parser, exec->env);
-// 	if (!cmd_path)
-// 	{
-// 		ft_fprintf(2, "%s: command not found\n", parser->str[0]);
-// 		free_cmd_argv(parser->str);
-// 		free_all(exec);
-// 		exit(127);
-// 	}
-// 	if (execve(cmd_path, parser->str, exec->env) == -1)
-// 	{
-// 		perror(parser->str[0]);
-// 		free(cmd_path);
-// 		free_cmd_argv(parser->str);
-// 		free_all(exec);
-// 		exit(126);
-// 	}
-// 	free(cmd_path);
-// 	free_cmd_argv(parser->str);
-// }
-
-// void	parent_process(t_exec *exec)
-// {
-// 	int	i;
-// 	int	final_status;
-
-// 	i = 0;
-// 	final_status = 0;
-// 	while (i < exec->num_pipes)
-// 	{
-// 		close(exec->fd[i][0]);
-// 		close(exec->fd[i][1]);
-// 		++i;
-// 	}
-// 	i = 0;
-// 	while (i <= exec->num_pipes)
-// 	{
-// 		waitpid(exec->pid[i], &exec->status, 0);
-// 		if (WIFEXITED(exec->status))
-// 			final_status = WEXITSTATUS(exec->status);
-// 		else if (WIFSIGNALED(exec->status))
-// 			final_status = 128 + WTERMSIG(exec->status);
-// 		i++;
-// 	}
-// 	free_all(exec);
-// 	exit(final_status);
 // }

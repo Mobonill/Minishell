@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:05:33 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/20 14:49:57 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/20 17:42:45 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ typedef struct s_simple_cmds
 	t_lexer					*redirections;
 	struct s_simple_cmds	*next;
 	struct s_simple_cmds	*prev;
-}	t_simple_cmds;
+}							t_simple_cmds;
 
 typedef struct s_env
 {
@@ -78,6 +78,8 @@ typedef struct s_shell
 
 typedef struct s_exec
 {
+	int		input;
+	int		output;
 	int		**fd;
 	int		status;
 	int		num_pipes;
@@ -86,6 +88,24 @@ typedef struct s_exec
 	char	*heredoc;
 	pid_t	*pid;
 }			t_exec;
+
+// BUILTINS
+//			env
+void	ft_env(t_env *env);
+
+//			export
+void	modify_env_value(t_env *cur, char * limit);
+void	create_new_env_node(char *to_compare, t_env *cur, char *limit, char *export);
+void	ft_export(char	**export, t_shell *shell);
+void	swap_env(t_env *cur);
+void	sort_env_list(t_env *cur, t_shell *shell);
+
+//			pwd
+void	ft_pwd(t_env *env);
+
+//			unset
+void	ft_unset(char **unset, t_shell *shell);
+
 
 
 // ENVP
@@ -98,18 +118,26 @@ void	ft_env_add_back(t_env **env, t_env *new);
 void	print_env(t_env *env);
 void	free_env(t_env *env);
 
-// BUILTIN(tmp_fd)
-//BUILTIN UTILS
-void	swap_env(t_env *cur);
-void	sort_env_list(t_env *cur, t_shell *shell);
 
-// EXEC
-int		my_choosen_exec(char *str, t_shell *shell);
-int		ft_handle_heredoc(t_simple_cmds *parser);
-void	execute_minishell(t_shell *shell, t_simple_cmds *parser);
-void	fork_system_call(t_simple_cmds *parser, t_exec *exec);
+// EXUCUTIONS UTILS
+void	closing_child_pipes(t_exec *exec, t_simple_cmds *parser);
 int		manage_dup(int oldfd, int newfd);
 
+
+// EXECUTION
+int		execute_minishell(t_shell *shell, t_simple_cmds *parser);
+void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
+int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
+void	execute_command(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
+void	parent_process(t_exec *exec);
+
+// REDIRECTIONS AND HEREDOC
+int		handle_redirections(t_exec *exec, t_simple_cmds *parser);
+int		ft_handle_heredoc(t_simple_cmds *parser);
+
+// SIGNALS
+void	signal_heredoc(int sig);
+void	heredoc_signals(void);
 
 // LEXER
 void	minishell_loop(t_shell *shell);

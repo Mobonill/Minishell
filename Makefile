@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/19 17:30:13 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/20 16:48:52 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,14 +15,16 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address 
 LREAD = -lreadline
 SRC =	execution.c \
-		open_and_free.c \
+		redirections_and_heredoc.c \
+		execution_utils.c \
+		signals.c \
 		# envp.c \
 		# lexer.c \
 		# path.c \
-		# builtin/ft_env.c \
-		# builtin/ft_pwd.c \
-		# builtin/ft_export.c \
-		# builtin/ft_unset.c \
+		# builtins/ft_env.c \
+		# builtins/ft_pwd.c \
+		# builtins/ft_export.c \
+		# builtins/ft_unset.c \
 		
 
 RM = rm -f

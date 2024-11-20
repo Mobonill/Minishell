@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   path.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/20 13:28:02 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/20 17:01:45 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ char	*get_envp_path(t_env *env)
 	while (cur != NULL)
 	{
 		if (ft_strncmp(cur->name, "PATH", 4) == 0 && cur->name[4] == '\0')
-			return (ft_substr(cur->value));
+			return (ft_strdup(cur->value));
 		cur = cur->next;
 	}
 	return (NULL);
@@ -80,8 +80,8 @@ char	*find_path(t_simple_cmds *parser, t_shell *shell)
 	if (!envp_path || ft_strlen(envp_path) == 0)
 	{
 		free(envp_path);
-		if (access(parser->cmd[0], X_OK) == 0)
-			return (ft_strdup(parser->cmd[0]));
+		if (access(parser->str[0], X_OK) == 0)
+			return (ft_strdup(parser->str[0]));
 		perror("");
 		return (NULL);
 	}

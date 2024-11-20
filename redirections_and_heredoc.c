@@ -3,14 +3,87 @@
 /*                                                        :::      ::::::::   */
 /*   open_and_free.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/20 14:34:45 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/20 16:34:58 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./include/lexer.h"
+
+int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
+{
+	t_lexer	*redir;
+
+	redir = parser->redirections;
+	while (redir)
+	{
+		if (redir->token == IN)
+		{
+			exec->input = open(redir->str, O_RDONLY);
+			if (exec->input < 0)
+				return (perror(redir->str), -1);
+			if (dup2(exec->input, STDIN_FILENO) < 0)
+				return (perror("dup2 failed"), close(exec->input), -1);
+			close(exec->input);
+		}
+		else if (redir->token == OUT)
+		{
+			exec->output = open(redir->str, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if (exec->output < 0)
+				return (perror(redir->str), -1);
+			if (dup2(exec->output, STDOUT_FILENO) < 0)
+				return (perror("dup2 failed"), close(exec->output), -1);
+			close(exec->output);
+		}
+		else if (redir->token == APPEND)
+		{
+			exec->output = open(redir->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if (exec->output < 0)
+				return (perror(redir->str), -1);
+			if (dup2(exec->output, STDOUT_FILENO) < 0)
+				return (perror("dup2 failed"), close(exec->output), -1);
+			close(exec->output);
+		}
+		else if (redir->token == HEREDOC)
+		{
+			if (handle_heredoc(parser) < 0)
+				return (-1);
+		}
+		redir = redir->next;
+	}
+	return (0);
+}
+
+int	ft_handle_heredoc(t_simple_cmds *parser)
+{
+	char	*line;
+	int		tmp_fd;
+
+	line = NULL;
+	tmp_fd = open(".heredoc_tmp", O_CREAT | O_WRONLY | O_TRUNC, 0600);
+	if (tmp_fd < 0)
+	{
+		perror("heredoc");
+		exit(1);
+	}
+	while (1)
+	{
+		line = readline(">");
+		heredoc_signals();
+		if (!line || ft_strcmp(line, parser->redirections->str) == 0)
+			break;
+		ft_fprintf(tmp_fd, "%s\n", line);
+		free(line);
+	}
+	free(line);
+	close(tmp_fd);
+	tmp_fd = open(".heredoc_tmp", O_RDONLY);
+	return (tmp_fd);
+}
+
+
 
 // void open_input(t_exec *exec, t_simple_cmds *parser)
 // {
@@ -44,8 +117,31 @@
 // 		}
 // 		cur = cur->next;
 // 	}
-// }
+//
+// void open_output(t_exec *exec, t_simple_cmds *parser)
+// {
+// 	t_parser *cur;
 
+// 	cur = parser;
+// 	while (cur != NULL)
+// 	{
+// 		if (cur->redirections->token == 4)
+// 		{
+// 			if (exec->output != -1)
+// 				close(exec->output);
+// 			exec->output = open(cur->redirections->str, O_CREAT | O_RDWR | O_TRUNC, 0666);
+// 			if (exec->output < 0)
+// 			{
+// 				ft_fprintf(2, "bash: %s: %s", cur->redirections->str, perror);
+// 				free_pipes(exec);
+// 				free(exec->pid);
+// 				exit(1);
+// 			}
+// 		}
+// 		cur = cur->next;
+// 	}
+// }
+//
 // int main()
 // {
 // 	t_exec exec;
@@ -92,106 +188,4 @@
 // 	free(exec.pid);
 // 	return 0;
 // }
-
-int	handle_redirections(t_simple_cmds *parser)
-{
-	t_lexer	*redir;
-	int		fd;
-
-	redir = parser->redirections;
-	while (redir)
-	{
-		if (redir->token == IN)
-		{
-			fd = open(redir->str, O_RDONLY);
-			if (fd < 0)
-				return (perror(redir->str), -1);
-			if (dup2(fd, STDIN_FILENO) < 0)
-				return (perror("dup2 failed"), close(fd), -1);
-			close(fd);
-		}
-		else if (redir->token == OUT)
-		{
-			fd = open(redir->str, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (fd < 0)
-				return (perror(redir->str), -1);
-			if (dup2(fd, STDOUT_FILENO) < 0)
-				return (perror("dup2 failed"), close(fd), -1);
-			close(fd);
-		}
-		else if (redir->token == APPEND)
-		{
-			fd = open(redir->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if (fd < 0)
-				return (perror(redir->str), -1);
-			if (dup2(fd, STDOUT_FILENO) < 0)
-				return (perror("dup2 failed"), close(fd), -1);
-			close(fd);
-		}
-		else if (redir->token == HEREDOC)
-		{
-			if (handle_heredoc(redir->str, parser) < 0)
-				return (-1);
-		}
-		redir = redir->next;
-	}
-	return (0);
-}
-
-// void open_output(t_exec *exec, t_simple_cmds *parser)
-// {
-// 	t_parser *cur;
-
-// 	cur = parser;
-// 	while (cur != NULL)
-// 	{
-// 		if (cur->redirections->token == 4)
-// 		{
-// 			if (exec->output != -1)
-// 				close(exec->output);
-// 			exec->output = open(cur->redirections->str, O_CREAT | O_RDWR | O_TRUNC, 0666);
-// 			if (exec->output < 0)
-// 			{
-// 				ft_fprintf(2, "bash: %s: %s", cur->redirections->str, perror);
-// 				free_pipes(exec);
-// 				free(exec->pid);
-// 				exit(1);
-// 			}
-// 		}
-// 		cur = cur->next;
-// 	}
-// }
-// void free_pipes(t_exec *exec)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	if (exec->fd)
-// 	{
-// 		i = 0;
-// 		while (i <= exec->num_pipes + 2) // pour les redirections
-// 		{
-// 			free(exec->fd[i]);
-// 			i++;
-// 		}
-// 		free(exec->fd);
-// 	}
-// }
-// void free_all(t_exec *exec)
-// {
-// 	free_pipes(exec);
-// 	free(exec->pid);
-// }
-
-// void free_cmd_argv(t_simple_cmds *parser)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	while (parser->cmd[i])
-// 	{
-// 		free(parser->cmd[i]);
-// 		i++;
-// 	}
-// 	free(parser->cmd);
 // }

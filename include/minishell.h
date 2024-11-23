@@ -223,16 +223,23 @@ void	free_env(t_env *env);
 
 
 // EXUCUTIONS UTILS
-void	closing_child_pipes(t_exec *exec, t_simple_cmds *parser);
+void	closing_child_pipes(t_exec *exec);
 int		manage_dup(int oldfd, int newfd);
 
 
 // EXECUTION
-int		execute_minishell(t_shell *shell, t_simple_cmds *parser);
+int	execute_minishell(t_shell *shell, t_simple_cmds *parser);
+char	**transform_env_list_to_tab(t_shell *shell, t_exec *exec);
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
 int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
-void	execute_command(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
+void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
 void	parent_process(t_exec *exec);
+
+// PATH
+char	*find_path(t_simple_cmds *parser, t_shell *shell);
+void	free_path(char **path);
+char	*find_command_in_path(char *cmd, char **path);
+char	*get_envp_path(t_env *env);
 
 // REDIRECTIONS AND HEREDOC
 int		handle_redirections(t_exec *exec, t_simple_cmds *parser);
@@ -242,7 +249,9 @@ int		ft_handle_heredoc(t_simple_cmds *parser);
 void	signal_heredoc(int sig);
 void	heredoc_signals(void);
 
-// LEXER
-void	minishell_loop(t_shell *shell);
+//FREE
+void	free_pipes(t_exec *exec);
+void	free_all(t_exec *exec);
+void	free_cmd_argv(t_simple_cmds *parser);
 
 #endif

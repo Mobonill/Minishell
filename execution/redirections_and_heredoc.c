@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 16:25:00 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 18:55:31 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 		}
 		else if (redir->token == HEREDOC)
 		{
-			if (handle_heredoc(parser) < 0)
+			if (ft_handle_heredoc(parser) < 0)
 				return (-1);
 		}
 		redir = redir->next;

@@ -6,13 +6,13 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:21:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 16:24:51 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 18:56:23 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	closing_child_pipes(t_exec *exec, t_simple_cmds *parser)
+void	closing_child_pipes(t_exec *exec)
 {
 	int	j;
 

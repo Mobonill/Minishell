@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 16:24:54 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 19:00:00 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,27 @@
 char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
 {
 	t_env	*cur;
+	int		i;
 
+	i = 0;
 	cur = shell->env;
 	while (cur != NULL)
 	{
-		cur
+		exec->env[i] = ft_strdup(cur->content);
 		cur = cur->next;
+		i++;
 	}
-	shell->env
-
-	return(exec->env);
+	return (exec->env);
 }
 int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 {
 	t_exec	*exec;
 	int		i;
 
+	printf("FUCK");
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
-	exec->env = shell->env;
 	exec->path = find_path(parser, shell);
 	exec->num_pipes = parser->num_redirections;
 	exec->pid = malloc(sizeof(pid_t) * exec->num_pipes + 1);
@@ -56,6 +57,7 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 		}
 	}
 	fork_system_call(parser, exec, shell);
+	return (0);
 }
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 {
@@ -81,7 +83,7 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
 	if (i == 0)
 	{
-		open_input(exec, parser);
+		handle_redirections(exec, parser);
 		if (exec->input != -1)
 		{
 			manage_dup(exec->input, STDIN_FILENO);
@@ -92,7 +94,7 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 	}
 	else if (i == exec->num_pipes)
 	{
-		open_output(exec, parser);
+		handle_redirections(exec, parser);
 		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
 		close(exec->fd[i - 1][0]);
 		// manage_dup(exec->output, STDOUT_FILENO);
@@ -100,12 +102,13 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 	}
 	else
 	{
+		handle_redirections(exec, parser);
 		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
 		// close(exec->fd[i - 1][0]);
 		manage_dup(exec->fd[i][1], STDOUT_FILENO);
 		// close(exec->fd[i][1]);
 	}
-	closing_child_pipes(exec, parser);
+	closing_child_pipes(exec);
 	execute_command(parser, shell, exec);
 	exit(0);
 }
@@ -113,27 +116,26 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {
 	char	*cmd_path;
-	t_env	*cur;
 
-	cur = exec->env;
-	cmd_path = find_path(parser, shell->env);
+	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
 		ft_fprintf(2, "%s: command not found\n", parser->str[0]);
-		free_cmd_argv(parser->str);
+		free_cmd_argv(parser);
 		free_all(exec);
 		exit(127);
 	}
+	transform_env_list_to_tab(shell, exec);
 	if (execve(cmd_path, parser->str, exec->env) == -1)
 	{
 		perror(parser->str[0]);
 		free(cmd_path);
-		free_cmd_argv(parser->str);
+		free_cmd_argv(parser);
 		free_all(exec);
 		exit(126);
 	}
 	free(cmd_path);
-	free_cmd_argv(parser->str);
+	free_cmd_argv(parser);
 }
 
 void	parent_process(t_exec *exec)

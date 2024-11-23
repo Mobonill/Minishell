@@ -62,6 +62,8 @@ void	ft_start_loop(char **envp)
 			expand_part(&shell);
 			printf("APRES\n");
 			print_simple_cmds(shell.commands);
+			printf("FUCK");
+			execute_minishell(&shell, shell.commands);
 			ft_free_tous(&shell);
 		}
 	}

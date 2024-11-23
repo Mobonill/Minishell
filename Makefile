@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/23 17:02:05 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/23 18:40:58 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,12 +30,12 @@ SRC =	main.c \
 		parser/signals.c \
 		free/free.c \
 		free/free1.c \
-		# free/free_exec.c \
-		# execution/execution.c \
-		# execution/redirections_and_heredoc.c \
-		# execution/execution_utils.c \
-		# execution/signals_heredoc.c \
-		# execution/path.c \
+		free/free_exec.c \
+		execution/execution.c \
+		execution/redirections_and_heredoc.c \
+		execution/execution_utils.c \
+		execution/signals_heredoc.c \
+		execution/path.c \
 		# builtins/ft_env.c \
 		# builtins/ft_pwd.c \
 		# builtins/ft_export.c \

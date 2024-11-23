@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSER_H
-# define PARSER_H
+#ifndef MINISHELL_H
+# define MINISHELL_H
 
 # include "../libft/libft.h"
 # include <limits.h>
@@ -79,7 +79,7 @@ typedef struct s_env
 	int				index;
 	struct s_env	*next;
 }					t_env;
-
+PARSER
 typedef struct s_shell
 {
 	char			*input_line;
@@ -151,7 +151,7 @@ size_t			ft_strlen(const char *s);
 char			*ft_strjoin(char const *s1, char const *s2);
 // char			*ft_substr(const char *str, size_t start, size_t len);
 char			*ft_strdup(const char *s);
-// char			*ft_itoa(int n);
+// char			*ft_iPARSERtoa(int n);
 
 void			ft_init_shell(t_shell *shell, char **envp);
 void			ft_start_loop(char **envp);

@@ -3,85 +3,73 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: zserobia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/27 19:38:52 by mobonill          #+#    #+#             */
-/*   Updated: 2024/10/28 17:25:47 by mobonill         ###   ########.fr       */
+/*   Created: 2024/11/13 12:00:47 by zserobia          #+#    #+#             */
+/*   Updated: 2024/11/13 12:00:49 by zserobia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// echo "Bonjour" | echo "Salut" > file.txt
+#include "parser.h"
 
-// LEXER ---> [echo] --> [Bonjour] ---> [ | ] ---> [echo] ---> [Salut] ---> [ > ] ----> [file.txt]
-//				0	 next	 0		next  1			  0			  0			  2				0
+int	g_global_exit = 0;
 
-
-// typedef struct s_lexer
-// {
-// 	char	*str;
-// 	int		token;
-
-// }	t_lexer;
-
-
-#include "lexer.h"
-
-
-// int	is_token(char lexer)
-// {
-// 	if (lexer != 0)
-// 		return (1);
-// 	return (0);
-// }
-
-// int	lexer(char *input)
-// {
-// 	int	i;
-
-// 	i = 0;
-// 	while (input[i] >= 7 && input[i] <= 32) // to manage whitespaces
-// 		i++;
-	
-
-// 	return ();
-// }
-
-// void	signals_handler() // to manage ctrl C ctrl D
-// {
-// 	signal(SIGINT, sigint);
-// 	signal(SIGQUIT, SIG_IGN);
-// }
-
-
-
-void	minishell_loop()
+void	ft_init_shell(t_shell *shell, char **envp)
 {
-	char *input;
-	char **lexer;
-	t_list	*new;
-	t_list	**lst;
-	int		i;
-
-	input = NULL;
-	i = 0;
-	while(1)
-	{
-		input = readline("Minishell>");
-		if (!input)
-		{
-			printf("exit\n");
-			break;
-		}
-		add_history(input);
-
-	}
-	rl_clear_history();
-	free(input);
-	// free(lexer);
+	shell->input_line = NULL;
+	shell->lexer_list = NULL;
+	shell->count_pipe = 0;
+	shell->pars = NULL;
+	shell->envp = envp;
+	shell->commands = NULL;
+	signals();
 }
 
-int	main()
+void	ft_start_loop(char **envp)
 {
-	minishell_loop();
+	t_shell	shell;
+
+	while (1)
+	{
+		ft_init_shell(&shell, envp);
+		shell.input_line = readline("Minishell$ ");
+		if (shell.input_line == NULL)
+			ft_signal_ctr_d();
+		if (ft_strlen(shell.input_line) > 0)
+		{
+			add_history(shell.input_line);
+			if (ft_minicheck(shell.input_line))
+			{
+				ft_free_lex(&shell);
+				continue ;
+			}
+			if (!check_quotes(shell.input_line))
+			{
+				printf("-bash: Error: unmatched quotes found.\n");
+				ft_free_lex(&shell);
+				continue ;
+			}
+			ft_read_token(shell.input_line, &shell.lexer_list, &shell);
+			if (ft_check_errors(shell.lexer_list))
+			{
+				ft_free_lex(&shell);
+				continue ;
+			}
+			print_tokens(shell.lexer_list);
+			parser_part(shell.count_pipe, shell.lexer_list, &shell);
+			printf("AVANT\n");
+			print_simple_cmds(shell.commands);
+			expand_part(&shell);
+			printf("APRES\n");
+			print_simple_cmds(shell.commands);
+			ft_free_tous(&shell);
+		}
+	}
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	ft_start_loop(envp);
+	rl_clear_history();
 	return (0);
 }

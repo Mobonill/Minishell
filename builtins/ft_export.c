@@ -6,11 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 19:54:56 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/12 15:19:03 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 16:24:40 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/lexer.h"
+#include "../include/minishell.h"
 
 void	modify_env_value(t_env *cur, char * limit)
 {

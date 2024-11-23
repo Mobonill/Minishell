@@ -1,18 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_cd.c                                            :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/05 15:22:27 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 16:24:33 by mobonill         ###   ########.fr       */
+/*   Created: 2024/11/23 16:26:52 by mobonill          #+#    #+#             */
+/*   Updated: 2024/11/23 16:41:29 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "./include/minishell.h"
 
-void	ft_cd(t_env *env)
+int	main(int argc, char **argv, char **envp)
 {
-	
+	(void)argc;
+	(void)argv;
+	ft_start_loop(envp);
+	rl_clear_history();
+	return (0);
 }

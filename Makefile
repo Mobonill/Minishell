@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/20 16:48:52 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/23 17:02:05 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,13 +14,28 @@ NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address 
 LREAD = -lreadline
-SRC =	execution.c \
-		redirections_and_heredoc.c \
-		execution_utils.c \
-		signals.c \
-		# envp.c \
-		# lexer.c \
-		# path.c \
+SRC =	main.c \
+		envp.c \
+		lexer/lexer.c \
+		lexer/lexer_utils.c \
+		lexer/lexer_read_token.c \
+		lexer/lexer_check_errors.c \
+		lexer/lexer_create.c \
+		parser/parser.c \
+		parser/parser_create_cmd.c \
+		parser/parser_dollar.c \
+		parser/parser_expand.c \
+		parser/parser_redirection.c \
+		parser/parser_trouve_len.c \
+		parser/signals.c \
+		free/free.c \
+		free/free1.c \
+		# free/free_exec.c \
+		# execution/execution.c \
+		# execution/redirections_and_heredoc.c \
+		# execution/execution_utils.c \
+		# execution/signals_heredoc.c \
+		# execution/path.c \
 		# builtins/ft_env.c \
 		# builtins/ft_pwd.c \
 		# builtins/ft_export.c \

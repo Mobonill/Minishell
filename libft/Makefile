@@ -3,7 +3,6 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -I.
 SRC = ft_isalnum.c ft_isalpha.c \
 	ft_isdigit.c ft_isascii.c ft_isprint.c \
-	ft_strlen.c \
 	ft_bzero.c \
 	ft_memset.c \
 	ft_memcpy.c \
@@ -13,7 +12,6 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	ft_strrchr.c \
 	ft_strcmp.c \
 	ft_strncmp.c \
-	ft_strdup.c \
 	ft_strndup.c \
 	ft_memcmp.c \
 	ft_memchr.c \
@@ -28,10 +26,7 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	ft_putstr_fd.c \
 	ft_putendl_fd.c \
 	ft_putnbr_fd.c \
-	ft_strjoin.c \
-	ft_substr.c \
 	ft_strtrim.c \
-	ft_itoa.c \
 	ft_split.c \
 	ft_atol.c \
 	ft_striteri.c \
@@ -51,6 +46,11 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	ft_lstclear.c \
 	ft_lstiter.c \
 	ft_lstmap.c \
+	ft_substr.c \
+	ft_itoa.c \
+	# ft_strlen.c \
+	# ft_strjoin.c \
+	# ft_strdup.c \
 
 RM = rm -f
 

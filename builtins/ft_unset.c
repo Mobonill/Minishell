@@ -6,11 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 15:55:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/09 16:25:37 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 16:24:47 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/lexer.h"
+#include "../include/minishell.h"
 
 void	ft_unset(char **unset, t_shell *shell)
 {

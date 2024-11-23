@@ -6,11 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/07 17:40:02 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 16:26:32 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./include/lexer.h"
+#include "./include/minishell.h"
 
 void	ft_envclear(t_env **env, void (*del)(void *))
 {

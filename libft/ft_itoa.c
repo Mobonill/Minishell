@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42nice.fr>      +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/30 15:35:55 by mobonill          #+#    #+#             */
-/*   Updated: 2024/05/01 20:04:28 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/23 17:13:30 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int	ft_size(long int n)
+int	ft_size_itoa(long int n)
 {
 	int		i;
 
@@ -37,7 +37,7 @@ char	*ft_itoa(int n)
 	char		*str;
 
 	nb = n;
-	i = ft_size(nb);
+	i = ft_size_itoa(nb);
 	str = ft_calloc(sizeof(char), i + 1);
 	if (!str)
 		return (NULL);

@@ -12,6 +12,17 @@
 
 #include "parser.h"
 
+void	free_lexer_str(t_lexer *current)
+{
+	if (current->str)
+	{
+		free(current->str);
+		current->str = NULL;
+	}
+	free(current);
+	current = NULL;
+}
+
 void	free_pars(t_simple_cmds *pars)
 {
 	t_simple_cmds	*current;

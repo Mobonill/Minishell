@@ -12,17 +12,6 @@
 
 #include "parser.h"
 
-static void	free_lexer_str(t_lexer *current)
-{
-	if (current->str)
-	{
-		free(current->str);
-		current->str = NULL;
-	}
-	free(current);
-	current = NULL;
-}
-
 static void	remove_lexer_list(t_lexer **lexer, t_lexer *current, t_lexer *prev)
 {
 	if (prev)
@@ -73,6 +62,7 @@ int	add_new_redir(t_lexer *current, t_lexer **lexer, t_pars_mini *pars_mini)
 	pars_mini->num_redirections++;
 	return (0);
 }
+
 int	handle_initial_token(t_lexer **current)
 {
 	if (*current && (*current)->token == 1)
@@ -83,7 +73,7 @@ int	handle_initial_token(t_lexer **current)
 	return (0);
 }
 
-int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini, int count_pipe)
+int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini)
 {
 	t_lexer	*current;
 	int		i;

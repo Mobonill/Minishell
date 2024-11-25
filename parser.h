@@ -13,7 +13,8 @@
 #ifndef PARSER_H
 # define PARSER_H
 
-//# include "../libft/libft.h"
+# include "libft/libft.h"
+
 # include <limits.h>
 # include <fcntl.h>
 # include <stdio.h>
@@ -95,6 +96,7 @@ void			free_lexer_list(t_lexer **lexer);
 void			free_redirections(t_lexer *redirection);
 void			free_simple_cmds_list(t_simple_cmds *commands);
 void			free_command(char **cmd);
+void			free_lexer_str(t_lexer *current);
 char			*ft_strjoin_free(char *s1, char *s2);
 void			ft_free_tous(t_shell *shell);
 
@@ -122,11 +124,6 @@ char			*ft_process2(char *result, char *temp);
 void			print_tokens(t_lexer *list);
 void			print_simple_cmds(t_simple_cmds *cmds);
 int				ft_ifspace(char line);
-size_t			ft_strlen(const char *s);
-char			*ft_strjoin(char const *s1, char const *s2);
-char			*ft_substr(const char *str, size_t start, size_t len);
-char			*ft_strdup(const char *s);
-char			*ft_itoa(int n);
 
 void			ft_init_shell(t_shell *shell, char **envp);
 void			ft_start_loop(char **envp);
@@ -134,8 +131,7 @@ void			ft_start_loop(char **envp);
 void			delete_lexer(t_lexer **lexer, int index);
 int				add_new_redir(t_lexer *current, t_lexer **lexer,
 					t_pars_mini *pars_mini);
-int				separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini,
-					int count_pipe);
+int				separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini);
 int				count_cmd(t_lexer *lexer);
 char			**create_command(t_lexer *lexer);
 t_simple_cmds	*create_and_add_command(t_lexer *tmp,

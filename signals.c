@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "parser.h"
 
 void	signals(void)
@@ -52,4 +51,3 @@ void	ft_signal_ctr_c_hd(int status)
 		exit(g_global_exit);
 	}
 }
-

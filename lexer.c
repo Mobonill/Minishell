@@ -69,6 +69,8 @@ void	ft_start_loop(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
+	(void) argv;
+	(void) argc;
 	ft_start_loop(envp);
 	rl_clear_history();
 	return (0);

@@ -19,12 +19,12 @@ void	handle_env_variable(const char *input, int *i, int *len, char **envp)
 	char	*value;
 
 	start = *i;
-	while (isalnum(input[*i]) || input[*i] == '_')
+	while (ft_isalnum(input[*i]) || input[*i] == '_')
 		(*i)++;
 	key = ft_substr(input, start, *i - start);
 	value = get_env_value(key, envp);
 	if (value)
-		*len += strlen(value);
+		*len += ft_strlen(value);
 	free(key);
 }
 
@@ -38,16 +38,16 @@ void	handle_variable(const char *input, int *i, int *len, char **envp)
 		*len += 11;
 		(*i)++;
 	}
-	else if (isdigit(input[*i]))
+	else if (ft_isdigit(input[*i]))
 	{
 		(*i)++;
-		while (isdigit(input[*i]))
+		while (ft_isdigit(input[*i]))
 		{
 			(*i)++;
 			(*len)++;
 		}
 	}
-	else if (isalpha(input[*i]) || input[*i] == '_')
+	else if (ft_isalpha(input[*i]) || input[*i] == '_')
 		handle_env_variable(input, i, len, envp);
 	else
 		(*i)++;

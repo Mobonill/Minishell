@@ -17,11 +17,12 @@ char	*get_env_value(const char *var_name, char **envp)
 	size_t	var_len;
 	int		i;
 
-	var_len = strlen(var_name);
+	var_len = ft_strlen(var_name);
 	i = 0;
 	while (envp[i] != NULL)
 	{
-		if (strncmp(envp[i], var_name, var_len) == 0 && envp[i][var_len] == '=')
+		if (ft_strncmp(envp[i], var_name, var_len) == 0
+			&& envp[i][var_len] == '=')
 			return (&envp[i][var_len + 1]);
 		i++;
 	}

@@ -10,15 +10,18 @@
 #                                                                              #
 # **************************************************************************** #
 
-
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address 
-SRC =	./minishell.c \
+CFLAGS = -Wall -Wextra -Werror -I../libft 
+LDFLAGS =  -Llibft  -lft
 
+SRC = signals.c parser.c parser_trouve_len.c parser_redirection.c \
+		parser_expand.c parser_dollar.c parser_create_cmd.c \
+		lexer_read_token.c lexer_create.c lexer_check_errors.c \
+		free.c free1.c lexer.c lexer_utils1.c lexer_utils.c \
+		lexer_create2.c
 
 RM = rm -f
-
 OBJ = $(SRC:.c=.o)
 
 .c.o:
@@ -27,7 +30,7 @@ OBJ = $(SRC:.c=.o)
 all : $(NAME)
 
 $(NAME): $(OBJ) libft/libft.a
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -Llibft -lft
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(LDFLAGS) $(LDFLAGS) -lreadline
 
 libft/libft.a :
 	$(MAKE) -C libft

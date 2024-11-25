@@ -39,7 +39,6 @@ char	*process_quoted_or_unquoted(char **line, int *total_len)
 
 int	ft_read_token_1(char *line, t_lexer **list, int index)
 {
-	int		len;
 	int		total_len;
 	char	*word;
 	char	*temp;
@@ -60,8 +59,8 @@ int	ft_read_token_1(char *line, t_lexer **list, int index)
 
 int	create_token(char *value, int type, t_lexer **list, int *index)
 {
-	ft_create_lexer_list(strdup(value), type, (*index)++, list);
-	return (strlen(value));
+	ft_create_lexer_list(ft_strdup(value), type, (*index)++, list);
+	return (ft_strlen(value));
 }
 
 int	special_tokens(char *line, t_lexer **list, int *index, t_shell *shell)

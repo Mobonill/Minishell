@@ -25,18 +25,17 @@ int	count_cmd(t_lexer *lexer)
 	return (res);
 }
 
-static void	process_redirections(t_lexer **tmp, t_pars_mini *pars_mini,
-	int count_pipe)
+static void	process_redirections(t_lexer **tmp, t_pars_mini *pars_mini)
 {
 	pars_mini->redirections = NULL;
 	pars_mini->num_redirections = 0;
-	if (separe_redirections(tmp, pars_mini, count_pipe))
+	if (separe_redirections(tmp, pars_mini))
 	{
 		printf("Error detaching redirections\n");
 	}
 }
 
-static void	advance_to_next_pipe(t_lexer **tmp, int *count_pipe)
+static void	advance_to_next_pipe(t_lexer **tmp)
 {
 	while (*tmp && (*tmp)->token != PIPE)
 		*tmp = (*tmp)->next;
@@ -58,7 +57,7 @@ void	parser_part(int count_pipe, t_lexer **lexer_list, t_shell *shell)
 	}
 	while (count_pipe > 0 && tmp)
 	{
-		process_redirections(&tmp, shell->pars_mini, count_pipe);
+		process_redirections(&tmp, shell->pars_mini);
 		if (!i++)
 			*lexer_list = tmp;
 		else
@@ -67,6 +66,6 @@ void	parser_part(int count_pipe, t_lexer **lexer_list, t_shell *shell)
 			break ;
 		if (!tmp || --count_pipe <= 0)
 			break ;
-		advance_to_next_pipe(&tmp, &count_pipe);
+		advance_to_next_pipe(&tmp);
 	}
 }

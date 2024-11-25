@@ -56,7 +56,7 @@ void	ft_start_loop(char **envp)
 				continue ;
 			}
 			print_tokens(shell.lexer_list);
-			parser_part(shell.count_pipe, shell.lexer_list, &shell);
+			parser_part(shell.count_pipe, &shell.lexer_list, &shell);
 			printf("AVANT\n");
 			print_simple_cmds(shell.commands);
 			expand_part(&shell);

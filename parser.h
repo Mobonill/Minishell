@@ -143,9 +143,9 @@ t_simple_cmds	*create_and_add_command(t_lexer *tmp,
 t_simple_cmds	*new_simple_cmd(t_lexer *lexer, t_pars_mini *pars_mini);
 t_simple_cmds	*last_simple_cmd(t_simple_cmds *list);
 void			add_new_simple_cmd(t_simple_cmds **list, t_simple_cmds *new);
-void			parser_part(int count_pipe, t_lexer *lexer_list,
+void			parser_part(int count_pipe, t_lexer **lexer_list,
 					t_shell *shell);
-
+int				handle_initial_token(t_lexer **current);
 void			expand_part(t_shell *shell);
 char			*process_str(const char *input, t_shell *shell);
 char			*allocate_result(int len);

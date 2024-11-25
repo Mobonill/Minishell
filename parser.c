@@ -42,13 +42,13 @@ static void	advance_to_next_pipe(t_lexer **tmp, int *count_pipe)
 		*tmp = (*tmp)->next;
 }
 
-void	parser_part(int count_pipe, t_lexer *lexer_list, t_shell *shell)
+void	parser_part(int count_pipe, t_lexer **lexer_list, t_shell *shell)
 {
 	t_lexer	*tmp;
 	int		i;
 
 	i = 0;
-	tmp = lexer_list;
+	tmp = *lexer_list;
 	count_pipe++;
 	shell->pars_mini = malloc(sizeof(t_pars_mini));
 	if (!shell->pars_mini)
@@ -60,7 +60,7 @@ void	parser_part(int count_pipe, t_lexer *lexer_list, t_shell *shell)
 	{
 		process_redirections(&tmp, shell->pars_mini, count_pipe);
 		if (!i++)
-			lexer_list = tmp;
+			*lexer_list = tmp;
 		else
 			tmp = tmp->next;
 		if (!create_and_add_command(tmp, shell->pars_mini, &shell->commands))

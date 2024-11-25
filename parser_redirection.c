@@ -73,6 +73,15 @@ int	add_new_redir(t_lexer *current, t_lexer **lexer, t_pars_mini *pars_mini)
 	pars_mini->num_redirections++;
 	return (0);
 }
+int	handle_initial_token(t_lexer **current)
+{
+	if (*current && (*current)->token == 1)
+	{
+		*current = (*current)->next;
+		return (1);
+	}
+	return (0);
+}
 
 int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini, int count_pipe)
 {
@@ -80,9 +89,7 @@ int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini, int count_pipe)
 	int		i;
 
 	current = *lexer;
-	i = 0;
-	if (current && current->token == 1)
-		current = current->next;
+	i = handle_initial_token(&current);
 	while (current && current->token != 1)
 	{
 		if (current->token > 1)
@@ -92,7 +99,7 @@ int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini, int count_pipe)
 			if (*lexer == NULL)
 				break ;
 			current = *lexer;
-			if (current->token == 1 && current->next)
+			if (current->token == 1 && current->next && i > 0)
 				current = current->next;
 		}
 		else if (current->token == 0 && current->next)

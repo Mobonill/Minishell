@@ -6,13 +6,13 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/26 18:20:39 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:59:07 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
+char	**transform_env_list_to_tab(t_shell *shell, t_exec *exec)
 {
 	t_env	*cur;
 	int		i;
@@ -69,14 +69,9 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 
 	i = -1;
 	while (++i <= parser->num_redirections)
-	{while (i < exec->num_pipes)
 	{
-		printf("FUCK4\n");
-		close(exec->fd[i][0]);
-		close(exec->fd[i][1]);
-		++i;
-	}
 		exec->pid[i] = fork();
+		printf("pid i %d\n", exec->pid[i]);
 		if (exec->pid[i] < 0)
 		{
 			perror("");
@@ -85,13 +80,7 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 		}
 		else if (exec->pid[i] == 0)
 		{
-			child_process(exec, parser, i, shell);while (i < exec->num_pipes)
-	{
-		printf("FUCK4\n");
-		close(exec->fd[i][0]);
-		close(exec->fd[i][1]);
-		++i;
-	}
+			child_process(exec, parser, i, shell);
 		}
 	}
 	parent_process(exec);
@@ -99,6 +88,7 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 
 int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
+	printf("O OOOOOOOOOOOOOOOOOOOO.|.OOOOOOOOOOOOOOOOOOOOO O");
 	if (handle_redirections(exec, parser) < 0)
 		exit(1);
 	if (i == 0)
@@ -140,7 +130,6 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	int		i;
 	int		size_env;
 
-	printf("execute_command\n");
 	i = 0;
 	size_env = ft_envsize_minishell(shell->env);
 	cmd_path = find_path(parser, shell);
@@ -176,7 +165,6 @@ void	parent_process(t_exec *exec)
 
 	i = 0;
 	final_status = 0;
-	printf("parent process");
 	while (i < exec->num_pipes)
 	{
 		close(exec->fd[i][0]);
@@ -186,7 +174,6 @@ void	parent_process(t_exec *exec)
 	i = 0;
 	while (i <= exec->num_pipes)
 	{
-		printf("FUCK5\n");
 		waitpid(exec->pid[i], &exec->status, 0);
 		if (WIFEXITED(exec->status))
 			final_status = WEXITSTATUS(exec->status);

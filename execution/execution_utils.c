@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:21:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 18:56:23 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 15:52:33 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,30 @@ int	manage_dup(int oldfd, int newfd)
 	if (dup2(oldfd, newfd) < 0)
 		return (errno);
 	return (0);
+}
+
+int	ft_lstsize_minishell(t_simple_cmds *lst)
+{
+	int	i;
+
+	i = 0;
+	while (lst)
+	{
+		i++;
+		lst = lst->next;
+	}
+	return (i);
+}
+
+int	ft_envsize_minishell(t_env *lst)
+{
+	int	i;
+
+	i = 0;
+	while (lst)
+	{
+		i++;
+		lst = lst->next;
+	}
+	return (i);
 }

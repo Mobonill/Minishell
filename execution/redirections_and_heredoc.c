@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 18:55:31 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 15:51:23 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ int	ft_handle_heredoc(t_simple_cmds *parser)
 	free(line);
 	close(tmp_fd);
 	tmp_fd = open(".heredoc_tmp", O_RDONLY);
+	// unlink(".heredoc_tmp");
 	return (tmp_fd);
 }
 

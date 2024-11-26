@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 16:25:07 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:59:09 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,27 @@
 
 void	free_pipes(t_exec *exec)
 {
-	int i;
+	int	i;
 
-	i = 0;
+	if (!exec || !exec->fd)
+		return;
 	if (exec->fd)
 	{
 		i = 0;
-		while (i <= exec->num_pipes + 2) // pour les redirections
+		while (i <= exec->num_pipes + 2)
 		{
-			free(exec->fd[i]);
+			if (exec->fd[i])
+			{
+				free(exec->fd[i]);
+				exec->fd[i] = NULL;
+			}
 			i++;
 		}
 		free(exec->fd);
+		exec->fd = NULL;
 	}
 }
+
 void	free_all(t_exec *exec)
 {
 	free_pipes(exec);

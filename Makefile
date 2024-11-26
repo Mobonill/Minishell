@@ -6,13 +6,13 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/23 18:40:58 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/26 15:03:46 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address 
+CFLAGS = -Wall -Wextra -Werror -I. -g3 -fsanitize=address 
 LREAD = -lreadline
 SRC =	main.c \
 		envp.c \

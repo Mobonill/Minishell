@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 16:26:32 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:10:07 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,13 @@ void	ft_env_add_back(t_env **env, t_env *new)
 	nlast->next = new;
 }
 
-t_shell	*init_env(const char **envp, t_shell *shell)
+t_env	*init_env(const char **envp, t_shell *shell)
 {
 	t_env	*new_env;
 	int		i;
 
 	i = 0;
-	shell = NULL;
-	shell = malloc(sizeof(t_env));
+	shell = malloc(sizeof(t_shell));
 	shell->env = NULL;
 	new_env = NULL;
 	while (envp[i])
@@ -109,7 +108,7 @@ t_shell	*init_env(const char **envp, t_shell *shell)
 		i++;
 	}
 	get_env_names_and_values(shell->env);
-	return (shell);
+	return (shell->env);
 }
 
 void	get_env_names_and_values(t_env *env)

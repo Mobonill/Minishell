@@ -79,7 +79,7 @@ typedef struct s_env
 	int				index;
 	struct s_env	*next;
 }					t_env;
-PARSER
+
 typedef struct s_shell
 {
 	char			*input_line;
@@ -153,7 +153,7 @@ char			*ft_strjoin(char const *s1, char const *s2);
 char			*ft_strdup(const char *s);
 // char			*ft_iPARSERtoa(int n);
 
-void			ft_init_shell(t_shell *shell, char **envp);
+t_shell			*ft_init_shell(char **envp);
 void			ft_start_loop(char **envp);
 
 void			delete_lexer(t_lexer **lexer, int index);
@@ -212,7 +212,7 @@ void	ft_unset(char **unset, t_shell *shell);
 
 
 // ENVP
-t_shell	*init_env(const char **envp, t_shell *shell);
+t_env	*init_env(const char **envp, t_shell *shell);
 void	get_env_names_and_values(t_env *env);
 void	ft_envclear(t_env **env, void (*del)(void *));
 t_env	*ft_envnew(char *content);
@@ -225,10 +225,12 @@ void	free_env(t_env *env);
 // EXUCUTIONS UTILS
 void	closing_child_pipes(t_exec *exec);
 int		manage_dup(int oldfd, int newfd);
+int		ft_lstsize_minishell(t_simple_cmds *lst);
+int		ft_envsize_minishell(t_env *lst);
 
 
 // EXECUTION
-int	execute_minishell(t_shell *shell, t_simple_cmds *parser);
+int		execute_minishell(t_shell *shell, t_simple_cmds *parser);
 char	**transform_env_list_to_tab(t_shell *shell, t_exec *exec);
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
 int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);

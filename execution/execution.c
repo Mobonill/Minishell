@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/23 19:00:00 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:20:39 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,16 @@ char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
 {
 	t_env	*cur;
 	int		i;
-
-	i = 0;
+	int		size_env;
+	
 	cur = shell->env;
-	while (cur != NULL)
+	i = 0;
+	size_env = ft_envsize_minishell(shell->env);
+	exec->env = malloc(sizeof(char *) * (size_env + 1));
+	if (!exec->env)
+		return NULL;
+	exec->env[size_env] = NULL;
+	while (cur)
 	{
 		exec->env[i] = ft_strdup(cur->content);
 		cur = cur->next;
@@ -27,23 +33,22 @@ char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
 	}
 	return (exec->env);
 }
+
 int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 {
 	t_exec	*exec;
 	int		i;
 
-	printf("FUCK");
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
 	exec->path = find_path(parser, shell);
-	exec->num_pipes = parser->num_redirections;
-	exec->pid = malloc(sizeof(pid_t) * exec->num_pipes + 1);
-	exec->fd = malloc(sizeof(int *) * exec->num_pipes); 
+	exec->num_pipes = ft_lstsize_minishell(parser) - 1;
+	exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
+	exec->fd = malloc(sizeof(int *) * (exec->num_pipes + 3));
 	if (!exec->fd || !exec->pid)
 	{
 		perror("");
-		free_pipes(exec);
 		return (errno);
 	}
 	i = -1;
@@ -52,7 +57,6 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 		exec->fd[i] = malloc(sizeof(int) * 2);
 		if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
 		{
-			free_pipes(exec); // free(exec->pid);
 			return (errno);
 		}
 	}
@@ -65,48 +69,65 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 
 	i = -1;
 	while (++i <= parser->num_redirections)
+	{while (i < exec->num_pipes)
 	{
+		printf("FUCK4\n");
+		close(exec->fd[i][0]);
+		close(exec->fd[i][1]);
+		++i;
+	}
 		exec->pid[i] = fork();
 		if (exec->pid[i] < 0)
 		{
 			perror("");
-			free_all(exec);
+			// free_all(exec);
 			exit(errno);
 		}
 		else if (exec->pid[i] == 0)
-			child_process(exec, parser, i, shell);
+		{
+			child_process(exec, parser, i, shell);while (i < exec->num_pipes)
+	{
+		printf("FUCK4\n");
+		close(exec->fd[i][0]);
+		close(exec->fd[i][1]);
+		++i;
+	}
+		}
 	}
 	parent_process(exec);
 }
 
 int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
+	if (handle_redirections(exec, parser) < 0)
+		exit(1);
 	if (i == 0)
 	{
-		handle_redirections(exec, parser);
-		if (exec->input != -1)
+		if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
 		{
-			manage_dup(exec->input, STDIN_FILENO);
-			close(exec->input);
+			perror("FIRST dup2 failed");
+			exit(1);
 		}
-		manage_dup(exec->fd[i][1], STDOUT_FILENO);
-		// close(exec->fd[i][1]);
+		close(exec->fd[i][1]);
 	}
 	else if (i == exec->num_pipes)
 	{
-		handle_redirections(exec, parser);
-		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
+		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0)
+		{
+			perror("END dup2 failed");
+			exit(1);
+		}
 		close(exec->fd[i - 1][0]);
-		// manage_dup(exec->output, STDOUT_FILENO);
-		// close(exec->output);
 	}
 	else
 	{
-		handle_redirections(exec, parser);
-		manage_dup(exec->fd[i - 1][0], STDIN_FILENO);
-		// close(exec->fd[i - 1][0]);
-		manage_dup(exec->fd[i][1], STDOUT_FILENO);
-		// close(exec->fd[i][1]);
+		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0 || dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
+		{
+			perror("MID dup2 failed\n");
+			exit(1);
+		}
+		close(exec->fd[i - 1][0]);
+		close(exec->fd[i][1]);
 	}
 	closing_child_pipes(exec);
 	execute_command(parser, shell, exec);
@@ -116,7 +137,12 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {
 	char	*cmd_path;
+	int		i;
+	int		size_env;
 
+	printf("execute_command\n");
+	i = 0;
+	size_env = ft_envsize_minishell(shell->env);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
@@ -125,7 +151,12 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		free_all(exec);
 		exit(127);
 	}
+	exec->env = malloc(sizeof(char *) * (size_env + 1));
+	exec->env[size_env] = NULL;
+	if (!exec->env)
+		return ;
 	transform_env_list_to_tab(shell, exec);
+	for (i = 0; printf("%s\n", exec->env[i]); i++);
 	if (execve(cmd_path, parser->str, exec->env) == -1)
 	{
 		perror(parser->str[0]);
@@ -145,6 +176,7 @@ void	parent_process(t_exec *exec)
 
 	i = 0;
 	final_status = 0;
+	printf("parent process");
 	while (i < exec->num_pipes)
 	{
 		close(exec->fd[i][0]);
@@ -154,6 +186,7 @@ void	parent_process(t_exec *exec)
 	i = 0;
 	while (i <= exec->num_pipes)
 	{
+		printf("FUCK5\n");
 		waitpid(exec->pid[i], &exec->status, 0);
 		if (WIFEXITED(exec->status))
 			final_status = WEXITSTATUS(exec->status);
@@ -161,7 +194,7 @@ void	parent_process(t_exec *exec)
 			final_status = 128 + WTERMSIG(exec->status);
 		i++;
 	}
-	free_all(exec);
+	// free_all(exec);
 	exit(final_status);
 }
 

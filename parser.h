@@ -72,6 +72,15 @@ typedef struct s_pars_mini
 	struct s_shell	*shell;
 }	t_pars_mini;
 
+typedef struct s_env
+{
+	char			*name;
+	char			*value;
+	char			*content;
+	int				index;
+	struct s_env	*next;
+}					t_env;
+
 typedef struct s_shell
 {
 	char			*input_line;
@@ -81,6 +90,7 @@ typedef struct s_shell
 	t_pars_mini		*pars_mini;
 	char			**envp;
 	t_simple_cmds	*commands;
+	t_env			*env;
 }	t_shell;
 
 typedef struct s_temp
@@ -145,17 +155,17 @@ int				handle_initial_token(t_lexer **current);
 void			expand_part(t_shell *shell);
 char			*process_str(const char *input, t_shell *shell);
 char			*allocate_result(int len);
-int				ft_trouve_len(const char *input, char **envp);
-char			*get_env_value(const char *var_name, char **envp);
+int				ft_trouve_len(const char *input, t_env *env);
+char			*get_env_value(const char *var_name, t_env *env);
 void			handle_dollar(t_shell *shell, const char *str,
 					t_temp *temp, char *result);
 void			handle_quote(const char *input, int *i, char *quote, int *len);
 void			han_quote1(const char *input, char *quote,
 					t_temp *temp, char *result);
 void			handle_variable(const char *input, int *i, int *len,
-					char **envp);
+					t_env *env);
 void			handle_env_variable(const char *input, int *i,
-					int *len, char **envp);
+					int *len, t_env *env);
 void			han_env1(t_shell *shell, const char *str, t_temp *temp,
 					char *result);
 void			handle_exit_status(char *result, t_temp *temp);
@@ -164,5 +174,7 @@ void			ft_signal_ctr_c_hd(int status);
 void			ft_signal_ctr_c(int status);
 void			signals_heredoc(void);
 void			signals(void);
+void			init_env(char **envp, t_shell *shell);
+void			free_env(t_env *env);
 
 #endif

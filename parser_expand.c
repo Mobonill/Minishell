@@ -45,7 +45,7 @@ char	*process_str(const char *input, t_shell *shell)
 	char	quote;
 	t_temp	temp;
 
-	len = ft_trouve_len(input, shell->envp);
+	len = ft_trouve_len(input, shell->env);
 	result = allocate_result(len);
 	temp = (t_temp){0, 0};
 	quote = '\0';

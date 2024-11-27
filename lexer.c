@@ -59,6 +59,7 @@ void	ft_start_loop(char **envp)
 			parser_part(shell.count_pipe, &shell.lexer_list, &shell);
 			printf("AVANT\n");
 			print_simple_cmds(shell.commands);
+			init_env(envp, &shell);
 			expand_part(&shell);
 			printf("APRES\n");
 			print_simple_cmds(shell.commands);

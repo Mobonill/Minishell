@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
+#    By: morgane <morgane@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/26 15:03:46 by mobonill         ###   ########.fr        #
+#    Updated: 2024/11/27 13:24:06 by morgane          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I. -g3 -fsanitize=address 
+CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address 
 LREAD = -lreadline
 SRC =	main.c \
 		envp.c \
@@ -36,10 +36,10 @@ SRC =	main.c \
 		execution/execution_utils.c \
 		execution/signals_heredoc.c \
 		execution/path.c \
-		# builtins/ft_env.c \
+		builtins/ft_env.c \
+		builtins/ft_unset.c \
 		# builtins/ft_pwd.c \
 		# builtins/ft_export.c \
-		# builtins/ft_unset.c \
 		
 
 RM = rm -f

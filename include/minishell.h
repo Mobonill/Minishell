@@ -223,10 +223,11 @@ void	free_env(t_env *env);
 
 
 // EXUCUTIONS UTILS
-void	closing_child_pipes(t_exec *exec);
+void	closing_child_pipes(t_exec *exec, int i);
 int		manage_dup(int oldfd, int newfd);
 int		ft_lstsize_minishell(t_simple_cmds *lst);
 int		ft_envsize_minishell(t_env *lst);
+int		is_builtin(char *cmd);
 
 
 // EXECUTION
@@ -235,7 +236,10 @@ char	**transform_env_list_to_tab(t_shell *shell, t_exec *exec);
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
 int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
 void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
-void	parent_process(t_exec *exec);
+int		parent_process(t_exec *exec);
+int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
+int		execute_single_command(t_simple_cmds *parser, t_shell *shell);
+
 
 // PATH
 char	*find_path(t_simple_cmds *parser, t_shell *shell);

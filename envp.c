@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   envp.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/26 17:10:07 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/26 19:37:37 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,6 @@ t_env	*init_env(const char **envp, t_shell *shell)
 	int		i;
 
 	i = 0;
-	shell = malloc(sizeof(t_shell));
 	shell->env = NULL;
 	new_env = NULL;
 	while (envp[i])

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/26 18:59:07 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/27 13:23:40 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,19 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 	t_exec	*exec;
 	int		i;
 
+	if (ft_lstsize_minishell(parser) == 1) // Une seule commande
+	{
+		if (is_builtin(parser->str[0])) // Vérifiez si c'est un builtin
+			return (execute_builtin(parser, shell), 0);
+		return (execute_single_command(parser, shell), 0); // Exécute une commande unique
+	}
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
 	exec->path = find_path(parser, shell);
 	exec->num_pipes = ft_lstsize_minishell(parser) - 1;
 	exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
-	exec->fd = malloc(sizeof(int *) * (exec->num_pipes + 3));
+	exec->fd = malloc(sizeof(int *) * (exec->num_pipes) + 3);
 	if (!exec->fd || !exec->pid)
 	{
 		perror("");
@@ -61,6 +67,10 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 		}
 	}
 	fork_system_call(parser, exec, shell);
+	free(exec->pid);
+	for (i = 0; i < exec->num_pipes; i++)
+		free(exec->fd[i]);
+	free(exec->fd);
 	return (0);
 }
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
@@ -68,7 +78,7 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 	int	i;
 
 	i = -1;
-	while (++i <= parser->num_redirections)
+	while (++i <= exec->num_pipes)
 	{
 		exec->pid[i] = fork();
 		printf("pid i %d\n", exec->pid[i]);
@@ -88,9 +98,9 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 
 int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
-	printf("O OOOOOOOOOOOOOOOOOOOO.|.OOOOOOOOOOOOOOOOOOOOO O");
 	if (handle_redirections(exec, parser) < 0)
-		exit(1);
+		exit (1);
+	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
 	if (i == 0)
 	{
 		if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
@@ -98,28 +108,30 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 			perror("FIRST dup2 failed");
 			exit(1);
 		}
-		close(exec->fd[i][1]);
+		// close(exec->fd[i][1]);
 	}
 	else if (i == exec->num_pipes)
 	{
+		printf("BBBBBBBBBBBBBBBBBBBBBBBBBBB");
 		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0)
 		{
 			perror("END dup2 failed");
 			exit(1);
 		}
-		close(exec->fd[i - 1][0]);
+		// close(exec->fd[i - 1][0]);
 	}
 	else
 	{
+		printf("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0 || dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
 		{
 			perror("MID dup2 failed\n");
 			exit(1);
 		}
-		close(exec->fd[i - 1][0]);
-		close(exec->fd[i][1]);
+		// close(exec->fd[i - 1][0]);
+		// close(exec->fd[i][1]);
 	}
-	closing_child_pipes(exec);
+	closing_child_pipes(exec, i);
 	execute_command(parser, shell, exec);
 	exit(0);
 }
@@ -127,15 +139,13 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {
 	char	*cmd_path;
-	int		i;
 	int		size_env;
 
-	i = 0;
 	size_env = ft_envsize_minishell(shell->env);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
-		ft_fprintf(2, "%s: command not found\n", parser->str[0]);
+		ft_fprintf(2, "%s: Hcommand not found\n", parser->str[0]);
 		free_cmd_argv(parser);
 		free_all(exec);
 		exit(127);
@@ -145,7 +155,6 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	if (!exec->env)
 		return ;
 	transform_env_list_to_tab(shell, exec);
-	for (i = 0; printf("%s\n", exec->env[i]); i++);
 	if (execve(cmd_path, parser->str, exec->env) == -1)
 	{
 		perror(parser->str[0]);
@@ -158,7 +167,7 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	free_cmd_argv(parser);
 }
 
-void	parent_process(t_exec *exec)
+int	parent_process(t_exec *exec)
 {
 	int	i;
 	int	final_status;
@@ -182,64 +191,69 @@ void	parent_process(t_exec *exec)
 		i++;
 	}
 	// free_all(exec);
-	exit(final_status);
+	return (final_status);
 }
 
+int execute_builtin(t_simple_cmds *parser, t_shell *shell)
+{
+	// 	// si on a un shell->hidden, on strcmp(cdm, hidden) et si c'est == et qu'il y a un = juste apres, on entre une value et on add le node.
+	// 	// // if (shell->hidden)
+	// 	// // {
+	// 	// 		cur =
+	// 	// // 		while ()
+	// 	// // }
+	// if (!strcmp(parser->str[0], "cd"))
+	//     return (ft_cd(parser->str, shell)); // =cd retourne 1 en cas d erreur dee chemin)
+	// if (!strcmp(parser->str[0], "export"))
+	//     return (ft_export(parser, shell), 0);
+	if (!strcmp(parser->str[0], "unset"))
+		return (ft_unset(parser->str, shell), 0);
+	if (!strcmp(parser->str[0], "env"))
+		return (ft_env(shell->env), 0);
+	// if (!strcmp(parser->str[0], "exit"))
+	//     return (ft_exit(parser->str), 0);
+	// if (!strcmp(parser->str[0], "echo"))
+	//     return (ft_echo(parser->str), 0);
+	return (0);
+}
 
-// int	my_choosen_exec(char *str, t_shell *shell, t_parser *parser)
-// {
-// 	char *unset[] = {
-// 		"UNSET" ,
-// 		"1pager" ,
-// 		"_less",
-// 		"PWD",
-// 		NULL
-// 	};
+int	execute_single_command(t_simple_cmds *parser, t_shell *shell)
+{
+	pid_t pid;
+	char *cmd_path;
+	int status;
 
-// 	char *export[] = {
-// 		"EXPORT" ,
-// 		"LESS=2TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT1",
-// 		"ttttttttttttttttt=tttttttttttt" ,
-// 		"452ffffffffffffffffffffff",
-// 		"_ttttttttttttttttttt"
-// 		"-ffffffffffffffffffffffff"
-// 		"tttttttttt754t",
-// 		"t=454ttttttttttttttttttttt",
-// 		NULL
-// 	};
-// 	t_parser *cur;
+	cmd_path = find_path(parser, shell);
+	if (!cmd_path)
+	{
+		fprintf(stderr, "%s: command not found\n", parser->str[0]);
+		return (127);
+	}
 
-// 	cur = NULL;
-// 	while (cur != NULL)
-// 	{
-// 		if (cur->redirections->str == HERE_DOC)
-// 		{
-// 			ft_handle_heredoc(parser);
-// 		}
-// 		cur = cur->next;
-// 	}
-
-	
-// 	// si on a un shell->hidden, on strcmp(cdm, hidden) et si c'est == et qu'il y a un = juste apres, on entre une value et on add le node.
-// 	// // if (shell->hidden)
-// 	// // {
-// 	// 		cur = 
-// 	// // 		while ()
-// 	// // }
-// 	if (!ft_strcmp(str, "ECHO"))
-// 		return 0;
-// 		// return (ft_cd); ( ? =cd retourne 1 en cas d erreur dee chemin)
-// 	else if (!ft_strcmp(str, "PWD"))
-// 		return (ft_pwd(shell->env), 0);
-// 	else if (!ft_strcmp(export[0], "EXPORT"))
-// 		return (ft_export(export, shell), 0);
-// 	else if (!ft_strcmp(unset[0], "UNSET"))
-// 		return (ft_unset(unset, shell), 0);
-// 	else if(!ft_strcmp(str, "ENV"))
-// 		return (ft_env(shell->env), 0);
-// 	else if (!ft_strcmp(str, "EXIT"))
-// 		return 0;
-// 		// return (ft_exit);
-// 	else
-// 		execute_minishell();
-// }
+	pid = fork();
+	if (pid < 0)
+	{
+		perror("fork failed");
+		free(cmd_path);
+		return (1);
+	}
+	else if (pid == 0)
+	{
+		if (execve(cmd_path, parser->str, shell->envp) == -1)
+		{
+			perror(parser->str[0]);
+			free(cmd_path);
+			exit(126);
+		}
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+		free(cmd_path);
+		if (WIFEXITED(status))
+			return WEXITSTATUS(status);
+		if (WIFSIGNALED(status))
+			return 128 + WTERMSIG(status);
+	}
+	return (0);
+}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/27 13:23:40 by morgane          ###   ########.fr       */
+/*   Updated: 2024/11/27 16:05:15 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,12 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 	t_exec	*exec;
 	int		i;
 
-	if (ft_lstsize_minishell(parser) == 1) // Une seule commande
-	{
-		if (is_builtin(parser->str[0])) // Vérifiez si c'est un builtin
-			return (execute_builtin(parser, shell), 0);
-		return (execute_single_command(parser, shell), 0); // Exécute une commande unique
-	}
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
+	exec = NULL;
+	if (ft_lstsize_minishell(parser) == 1)
+		return (execute_single_command(parser, shell, exec), 0);
 	exec->path = find_path(parser, shell);
 	exec->num_pipes = ft_lstsize_minishell(parser) - 1;
 	exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
@@ -99,8 +96,7 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
 	if (handle_redirections(exec, parser) < 0)
-		exit (1);
-	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
+		exit(1);
 	if (i == 0)
 	{
 		if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
@@ -112,7 +108,6 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 	}
 	else if (i == exec->num_pipes)
 	{
-		printf("BBBBBBBBBBBBBBBBBBBBBBBBBBB");
 		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0)
 		{
 			perror("END dup2 failed");
@@ -122,7 +117,6 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 	}
 	else
 	{
-		printf("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0 || dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
 		{
 			perror("MID dup2 failed\n");
@@ -141,6 +135,11 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	char	*cmd_path;
 	int		size_env;
 
+	if (is_builtin(parser->str[0]))
+	{
+		execute_builtin(parser, shell);
+		return;
+	}
 	size_env = ft_envsize_minishell(shell->env);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
@@ -217,19 +216,32 @@ int execute_builtin(t_simple_cmds *parser, t_shell *shell)
 	return (0);
 }
 
-int	execute_single_command(t_simple_cmds *parser, t_shell *shell)
+int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {
-	pid_t pid;
-	char *cmd_path;
-	int status;
+	pid_t	pid;
+	char	*cmd_path;
+	int		status;
+	int		builtin_status;
 
+	exec->input = STDIN_FILENO;
+	exec->output = STDOUT_FILENO;
+	if (handle_redirections(NULL, parser) < 0)
+		return (1);
+	if (is_builtin(parser->str[0]))
+	{
+		builtin_status = execute_builtin(parser, shell);
+		dup2(dup(STDIN_FILENO), STDIN_FILENO); 
+		dup2(dup(STDOUT_FILENO), STDOUT_FILENO);
+		close(dup(STDIN_FILENO));
+		close(dup(STDOUT_FILENO));
+		return (builtin_status);
+	}
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
 		fprintf(stderr, "%s: command not found\n", parser->str[0]);
 		return (127);
 	}
-
 	pid = fork();
 	if (pid < 0)
 	{

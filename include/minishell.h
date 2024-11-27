@@ -238,7 +238,7 @@ int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
 void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
 int		parent_process(t_exec *exec);
 int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
-int		execute_single_command(t_simple_cmds *parser, t_shell *shell);
+int		execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
 
 
 // PATH
@@ -249,7 +249,7 @@ char	*get_envp_path(t_env *env);
 
 // REDIRECTIONS AND HEREDOC
 int		handle_redirections(t_exec *exec, t_simple_cmds *parser);
-int		ft_handle_heredoc(t_simple_cmds *parser);
+int		ft_handle_heredoc(char *str);
 
 // SIGNALS
 void	signal_heredoc(int sig);

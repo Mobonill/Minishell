@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/27 16:06:48 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/27 19:03:04 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,16 +42,16 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 		else if(redir->token == HEREDOC)
 		{
 			exec->input = ft_handle_heredoc(redir->str);
-			printf("exec = %d", exec->input);
+			// printf("exec = %d", exec->input);
 			if (exec->input < 0)
 				return (-1);
 			if (dup2(exec->input, STDIN_FILENO) < 0)
 				return (perror("dup2 failed"), close(exec->input), -1);
 			close(exec->input);
+			// unlink(".heredoc_tmp");
 		}
 		redir = redir->next;
 	}
-	// unlink(".heredoc_tmp");
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/27 16:05:15 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/27 19:02:42 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,32 +42,37 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
-	exec = NULL;
 	if (ft_lstsize_minishell(parser) == 1)
-		return (execute_single_command(parser, shell, exec), 0);
-	exec->path = find_path(parser, shell);
-	exec->num_pipes = ft_lstsize_minishell(parser) - 1;
-	exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
-	exec->fd = malloc(sizeof(int *) * (exec->num_pipes) + 3);
-	if (!exec->fd || !exec->pid)
 	{
-		perror("");
-		return (errno);
+		execute_single_command(parser, shell, exec);
 	}
-	i = -1;
-	while (++i < exec->num_pipes)
+	else if (ft_lstsize_minishell(parser) > 1)
 	{
-		exec->fd[i] = malloc(sizeof(int) * 2);
-		if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
+		exec->path = find_path(parser, shell);
+		exec->num_pipes = ft_lstsize_minishell(parser) - 1;
+		exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
+		exec->fd = malloc(sizeof(int *) * (exec->num_pipes) + 3);
+		if (!exec->fd || !exec->pid)
 		{
+			perror("");
 			return (errno);
 		}
+		i = -1;
+		while (++i < exec->num_pipes)
+		{
+			exec->fd[i] = malloc(sizeof(int) * 2);
+			if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
+			{
+				return (errno);
+			}
+		}
+		fork_system_call(parser, exec, shell);
+		free(exec->pid);
+		for (i = 0; i < exec->num_pipes; i++)
+			free(exec->fd[i]);
+		free(exec->fd);
 	}
-	fork_system_call(parser, exec, shell);
-	free(exec->pid);
-	for (i = 0; i < exec->num_pipes; i++)
-		free(exec->fd[i]);
-	free(exec->fd);
+	free(exec);
 	return (0);
 }
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
@@ -144,7 +149,7 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
-		ft_fprintf(2, "%s: Hcommand not found\n", parser->str[0]);
+		ft_fprintf(2, "%s: command not found\n", parser->str[0]);
 		free_cmd_argv(parser);
 		free_all(exec);
 		exit(127);
@@ -223,10 +228,14 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	int		status;
 	int		builtin_status;
 
-	exec->input = STDIN_FILENO;
-	exec->output = STDOUT_FILENO;
-	if (handle_redirections(NULL, parser) < 0)
+	if (handle_redirections(exec, parser) != 0)
+		return (-1);
+
+	if (!parser->str || !parser->str[0])
+	{
+		fprintf(stderr, "Error: Command is empty\n");
 		return (1);
+	}
 	if (is_builtin(parser->str[0]))
 	{
 		builtin_status = execute_builtin(parser, shell);
@@ -236,6 +245,7 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		close(dup(STDOUT_FILENO));
 		return (builtin_status);
 	}
+	// printf("str[0] : %s\n", parser->str[0]);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
@@ -263,9 +273,10 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		waitpid(pid, &status, 0);
 		free(cmd_path);
 		if (WIFEXITED(status))
-			return WEXITSTATUS(status);
+			status = WEXITSTATUS(exec->status);
 		if (WIFSIGNALED(status))
-			return 128 + WTERMSIG(status);
+			status = 128 + WTERMSIG(exec->status);
 	}
+	printf("HERE I AM");
 	return (0);
 }

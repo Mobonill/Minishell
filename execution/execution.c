@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/28 09:14:07 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/28 10:42:25 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,9 +228,11 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	int		status;
 	int		builtin_status;
 
-	if (handle_redirections(exec, parser) != 0)
-		return (-1);
-
+	if (handle_redirections(exec, parser) < 0)
+	{
+		fprintf(stderr, "Error: Redir failed\n");
+		return (1);
+	}
 	if (!parser->str || !parser->str[0])
 	{
 		fprintf(stderr, "Error: Command is empty\n");
@@ -245,7 +247,6 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		close(dup(STDOUT_FILENO));
 		return (builtin_status);
 	}
-	printf("str[0] : %s\n", parser->str[0]);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
@@ -277,6 +278,7 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		if (WIFSIGNALED(status))
 			status = 128 + WTERMSIG(exec->status);
 	}
-	printf("HERE I AM %d\n", shell->count_pipe);
+	unlink(".heredoc_tmp");
+	printf("JE PASSE PAR LA \n");
 	return (0);
 }

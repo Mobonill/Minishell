@@ -48,7 +48,10 @@ void	ft_start_loop(char **envp)
 		}
 		shell->input_line = readline("Minishell$ ");
 		if (shell->input_line == NULL)
+		{
+			printf("problem signals\n");
 			ft_signal_ctr_d();
+		}
 		if (ft_strlen(shell->input_line) > 0)
 		{
 			add_history(shell->input_line);
@@ -78,6 +81,7 @@ void	ft_start_loop(char **envp)
 			print_simple_cmds(shell->commands);
 			shell->env = init_env((const char **)envp, shell);
 			execute_minishell(shell, shell->commands);
+			reset_signals();
 			// ft_free_tous(shell);
 		}
 	}

@@ -77,12 +77,7 @@ void	ft_start_loop(char **envp)
 			printf("APRES\n");
 			print_simple_cmds(shell->commands);
 			shell->env = init_env((const char **)envp, shell);
-			if(execute_minishell(shell, shell->commands) < 0)
-			{
-				fprintf(stderr, "Execution failed\n");
-				// ft_free_tous(shell);
-				continue;
-			}
+			execute_minishell(shell, shell->commands);
 			// ft_free_tous(shell);
 		}
 	}

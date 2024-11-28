@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/27 19:02:42 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/28 09:14:07 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,7 +245,7 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		close(dup(STDOUT_FILENO));
 		return (builtin_status);
 	}
-	// printf("str[0] : %s\n", parser->str[0]);
+	printf("str[0] : %s\n", parser->str[0]);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
@@ -277,6 +277,6 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		if (WIFSIGNALED(status))
 			status = 128 + WTERMSIG(exec->status);
 	}
-	printf("HERE I AM");
+	printf("HERE I AM %d\n", shell->count_pipe);
 	return (0);
 }

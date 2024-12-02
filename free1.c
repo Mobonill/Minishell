@@ -94,7 +94,7 @@ void	free_command(char **cmd)
 
 void	free_env(t_env *env)
 {
-	t_env *temp;
+	t_env	*temp;
 
 	while (env)
 	{

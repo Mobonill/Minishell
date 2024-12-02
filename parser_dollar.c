@@ -21,7 +21,7 @@ char	*get_env_value(const char *var_name, t_env *env)
 	current = env;
 	while (current)
 	{
-		if (current->name && strcmp(current->name, var_name) == 0)
+		if (current->name && ft_strcmp(current->name, var_name) == 0)
 			return (current->value);
 		current = current->next;
 	}

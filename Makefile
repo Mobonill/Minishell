@@ -19,7 +19,7 @@ SRC = signals.c parser.c parser_trouve_len.c parser_redirection.c \
 		parser_expand.c parser_dollar.c parser_create_cmd.c \
 		lexer_read_token.c lexer_create.c lexer_check_errors.c \
 		free.c free1.c lexer.c lexer_utils1.c lexer_utils.c \
-		lexer_create2.c envp1.c
+		lexer_create2.c envp1.c cd.c echo.c exit.c
 
 RM = rm -f
 OBJ = $(SRC:.c=.o)

@@ -25,6 +25,20 @@ void	ft_init_shell(t_shell *shell, char **envp)
 	signals();
 }
 
+int	execute_builtin(t_simple_cmds *simple_cmd, t_shell *shell)
+{
+	if (!simple_cmd->str[0])
+		return (0);
+	if (ft_strcmp(simple_cmd->str[0], "exit") == 0)
+		return (builtin_exit(simple_cmd, shell));
+	else if (ft_strcmp(simple_cmd->str[0], "cd") == 0)
+		return (builtin_cd(simple_cmd, shell->env));
+	else if (ft_strcmp(simple_cmd->str[0], "echo") == 0)
+		return (builtin_echo(simple_cmd));
+	else
+		return (0);
+}
+
 void	ft_start_loop(char **envp)
 {
 	t_shell	shell;
@@ -63,6 +77,7 @@ void	ft_start_loop(char **envp)
 			expand_part(&shell);
 			printf("APRES\n");
 			print_simple_cmds(shell.commands);
+			//execute_builtin(shell.commands, &shell);
 			ft_free_tous(&shell);
 		}
 	}

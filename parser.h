@@ -31,6 +31,7 @@
 # include <readline/history.h>
 # include <signal.h>
 # include <ctype.h>
+# include <stdbool.h>
 
 extern int	g_global_exit;
 
@@ -177,4 +178,16 @@ void			signals(void);
 void			init_env(char **envp, t_shell *shell);
 void			free_env(t_env *env);
 
+int				builtin_cd(t_simple_cmds *cmd, t_env *env);
+void			cd_to_previous(t_env *env);
+void			cd_to_home(t_env *env);
+void			cd_to_path(const char *path, t_env *env);
+void			update_env(t_env *env, const char *var_name,
+					const char *new_value);
+
+int				builtin_echo(t_simple_cmds *simple_cmd);
+void			print_args(char **args, int index);
+bool			check_n_option(char **args, int *index);
+int				builtin_exit(t_simple_cmds *simple_cmd, t_shell *shell);
+int				is_all_digits(const char *str);
 #endif

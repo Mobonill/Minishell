@@ -6,7 +6,11 @@
 /*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2024/12/03 17:03:08 by morgane          ###   ########.fr       */
+=======
+/*   Updated: 2024/11/28 10:42:25 by mobonill         ###   ########.fr       */
+>>>>>>> 0bd304f8008a01d3002fcf47d9d3ba53cecd8af4
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,10 +234,19 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	int		status;
 	int		builtin_status;
 
+<<<<<<< HEAD
 	if (handle_redirections(exec, parser) != 0)
 		return (-1);
 
 	if (!parser->str)
+=======
+	if (handle_redirections(exec, parser) < 0)
+	{
+		fprintf(stderr, "Error: Redir failed\n");
+		return (1);
+	}
+	if (!parser->str || !parser->str[0])
+>>>>>>> 0bd304f8008a01d3002fcf47d9d3ba53cecd8af4
 	{
 		fprintf(stderr, "Error: Command is empty\n");
 		return (1);
@@ -247,7 +260,6 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		close(dup(STDOUT_FILENO));
 		return (builtin_status);
 	}
-	// printf("str[0] : %s\n", parser->str[0]);
 	cmd_path = find_path(parser, shell);
 	if (!cmd_path)
 	{
@@ -279,6 +291,7 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		if (WIFSIGNALED(status))
 			status = 128 + WTERMSIG(exec->status);
 	}
-	printf("HERE I AM");
+	unlink(".heredoc_tmp");
+	printf("JE PASSE PAR LA \n");
 	return (0);
 }

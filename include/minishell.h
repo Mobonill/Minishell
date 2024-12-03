@@ -254,6 +254,8 @@ int		ft_handle_heredoc(char *str);
 // SIGNALS
 void	signal_heredoc(int sig);
 void	heredoc_signals(void);
+void	reset_signals(void);
+void	ft_signal_ctr_c_hd(int status);
 
 //FREE
 void	free_pipes(t_exec *exec);

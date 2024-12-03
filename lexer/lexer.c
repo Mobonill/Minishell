@@ -51,10 +51,15 @@ void	ft_start_loop(char **envp)
 		// 	ft_signal_ctr_d();
 		if (shell->input_line == NULL)
 		{
+<<<<<<< HEAD
 			// Si readline retourne NULL (EOF), on quitte proprement
 			printf("exit\n");
 			// ft_free_tous(shell);
 			break;
+=======
+			printf("problem signals\n");
+			ft_signal_ctr_d();
+>>>>>>> 0bd304f8008a01d3002fcf47d9d3ba53cecd8af4
 		}
 		if (ft_strlen(shell->input_line) > 0)
 		{
@@ -84,12 +89,18 @@ void	ft_start_loop(char **envp)
 			printf("APRES\n");
 			print_simple_cmds(shell->commands);
 			shell->env = init_env((const char **)envp, shell);
+<<<<<<< HEAD
 			if(execute_minishell(shell, shell->commands) != 0)
 			{
 				fprintf(stderr, "Execution failed\n");
 				// ft_free_tous(shell);
 				continue;
 			}
+=======
+			execute_minishell(shell, shell->commands);
+			reset_signals();
+			// ft_free_tous(shell);
+>>>>>>> 0bd304f8008a01d3002fcf47d9d3ba53cecd8af4
 		}
 		ft_free_tous(shell);
 	}

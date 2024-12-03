@@ -12,6 +12,17 @@
 
 #include "../include/minishell.h"
 
+void	free_lexer_str(t_lexer *current)
+{
+	if (current->str)
+	{
+		free(current->str);
+		current->str = NULL;
+	}
+	free(current);
+	current = NULL;
+}
+
 void	free_pars(t_simple_cmds *pars)
 {
 	t_simple_cmds	*current;
@@ -63,6 +74,7 @@ void	ft_free_tous(t_shell *shell)
 		free(shell->input_line);
 		shell->input_line = NULL;
 	}
+	//free_env(shell->env);
 }
 
 void	free_command(char **cmd)
@@ -78,4 +90,22 @@ void	free_command(char **cmd)
 		i++;
 	}
 	free(cmd);
+}
+
+void	free_env(t_env *env)
+{
+	t_env	*temp;
+
+	while (env)
+	{
+		temp = env->next;
+		if (env->content)
+			free(env->content);
+		if (env->name)
+			free(env->name);
+		if (env->value)
+			free(env->value);
+		free(env);
+		env = temp;
+	}
 }

@@ -1,7 +1,0 @@
-{
-	"files.associations": {
-		"parser.h": "c",
-		"minishell.h": "c"
-	},
-	"C_Cpp.errorSquiggles": "disabled"
-}

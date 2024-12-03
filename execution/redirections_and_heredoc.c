@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections_and_heredoc.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/27 19:03:04 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/11/27 21:32:29 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,7 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 		}
 		else if (redir->token == OUT || redir->token == APPEND)
 		{
-			exec->output = open(redir->str,
-				O_WRONLY | O_CREAT | (redir->token == OUT ? O_TRUNC : O_APPEND),
-					0644);
+			exec->output = open(redir->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (exec->output < 0)
 				return (perror(redir->str), -1);
 			if (dup2(exec->output, STDOUT_FILENO) < 0)

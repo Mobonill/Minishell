@@ -50,6 +50,7 @@ void	parser_part(int count_pipe, t_lexer *lexer_list, t_shell *shell)
 	tmp = lexer_list;
 	count_pipe++;
 	shell->pars_mini = malloc(sizeof(t_pars_mini));
+	memset(shell->pars_mini, 0, sizeof(t_pars_mini));
 	if (!shell->pars_mini)
 	{
 		printf("Memory allocation failed for pars_mini\n");

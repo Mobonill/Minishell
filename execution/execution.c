@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/27 19:02:42 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/03 17:03:08 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,13 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 	t_exec	*exec;
 	int		i;
 
+	exec = NULL;
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
 	if (ft_lstsize_minishell(parser) == 1)
 	{
+		memset(exec, 0, sizeof(t_exec)); 
 		execute_single_command(parser, shell, exec);
 	}
 	else if (ft_lstsize_minishell(parser) > 1)
@@ -100,8 +102,8 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 
 int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
-	if (handle_redirections(exec, parser) < 0)
-		exit(1);
+	// if (handle_redirections(exec, parser) < 0)
+	// 	exit(1);
 	if (i == 0)
 	{
 		if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
@@ -231,7 +233,7 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	if (handle_redirections(exec, parser) != 0)
 		return (-1);
 
-	if (!parser->str || !parser->str[0])
+	if (!parser->str)
 	{
 		fprintf(stderr, "Error: Command is empty\n");
 		return (1);

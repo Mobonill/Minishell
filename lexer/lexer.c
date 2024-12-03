@@ -38,17 +38,24 @@ void	ft_start_loop(char **envp)
 	t_shell	*shell;
 
 	shell = NULL;
+	shell = ft_init_shell(envp);
+	if (!shell)
+	{
+		perror("Malloc failed");
+		exit(EXIT_FAILURE);
+	}
 	while (1)
 	{
-		shell = ft_init_shell(envp);
-		if (!shell)
-		{
-			perror("Malloc failed");
-			exit(EXIT_FAILURE);
-		}
 		shell->input_line = readline("Minishell$ ");
+		// if (shell->input_line == NULL)
+		// 	ft_signal_ctr_d();
 		if (shell->input_line == NULL)
-			ft_signal_ctr_d();
+		{
+			// Si readline retourne NULL (EOF), on quitte proprement
+			printf("exit\n");
+			// ft_free_tous(shell);
+			break;
+		}
 		if (ft_strlen(shell->input_line) > 0)
 		{
 			add_history(shell->input_line);
@@ -77,14 +84,16 @@ void	ft_start_loop(char **envp)
 			printf("APRES\n");
 			print_simple_cmds(shell->commands);
 			shell->env = init_env((const char **)envp, shell);
-			if(execute_minishell(shell, shell->commands) < 0)
+			if(execute_minishell(shell, shell->commands) != 0)
 			{
 				fprintf(stderr, "Execution failed\n");
 				// ft_free_tous(shell);
 				continue;
 			}
-			// ft_free_tous(shell);
 		}
+		ft_free_tous(shell);
 	}
+	free_env(shell->env);
+	free(shell);
 }
 

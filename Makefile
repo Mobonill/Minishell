@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
+#    By: morgane <morgane@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/11/27 18:44:58 by mobonill         ###   ########.fr        #
+#    Updated: 2024/12/03 16:27:21 by morgane          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I. -g3 -fsanitize=address 
+CFLAGS = -Wall -Wextra -Werror -I. -g3 # -g3 -fsanitize=address 
 LREAD = -lreadline
 SRC =	main.c \
 		envp.c \

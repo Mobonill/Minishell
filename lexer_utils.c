@@ -42,6 +42,7 @@ void	print_simple_cmds(t_simple_cmds *cmds)
 				redir->token, redir->str);
 			redir = redir->next;
 		}
+		printf("\n");
 		cmds = cmds->next;
 	}
 }

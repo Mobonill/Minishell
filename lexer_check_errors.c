@@ -22,7 +22,9 @@ int	ft_minicheck(char *line)
 	while (ft_ifspace(line[i]))
 		i++;
 	if (i == len)
+	{
 		return (1);
+	}
 	if (line[i] == '|')
 	{
 		printf("-bash: syntax error near unexpected token `|'\n");

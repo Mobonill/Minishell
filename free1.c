@@ -74,7 +74,7 @@ void	ft_free_tous(t_shell *shell)
 		free(shell->input_line);
 		shell->input_line = NULL;
 	}
-	free_env(shell->env);
+	//free_env(shell->env);
 }
 
 void	free_command(char **cmd)

@@ -12,7 +12,7 @@
 
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I../libft 
+CFLAGS = -Wall -Wextra -Werror -g -I../libft 
 LDFLAGS =  -Llibft  -lft
 
 SRC = signals.c parser.c parser_trouve_len.c parser_redirection.c \

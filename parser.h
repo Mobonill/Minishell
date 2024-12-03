@@ -89,7 +89,6 @@ typedef struct s_shell
 	t_lexer			*lexer_list;
 	t_simple_cmds	*pars;
 	t_pars_mini		*pars_mini;
-	char			**envp;
 	t_simple_cmds	*commands;
 	t_env			*env;
 }	t_shell;
@@ -136,7 +135,7 @@ void			print_tokens(t_lexer *list);
 void			print_simple_cmds(t_simple_cmds *cmds);
 int				ft_ifspace(char line);
 
-void			ft_init_shell(t_shell *shell, char **envp);
+void			ft_init_shell(t_shell *shell);
 void			ft_start_loop(char **envp);
 
 void			delete_lexer(t_lexer **lexer, int index);

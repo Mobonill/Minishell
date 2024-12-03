@@ -14,19 +14,20 @@
 
 int	g_global_exit = 0;
 
-void	ft_init_shell(t_shell *shell, char **envp)
+void	ft_init_shell(t_shell *shell)
 {
 	shell->input_line = NULL;
 	shell->lexer_list = NULL;
 	shell->count_pipe = 0;
 	shell->pars = NULL;
-	shell->envp = envp;
 	shell->commands = NULL;
 	signals();
 }
 
 int	execute_builtin(t_simple_cmds *simple_cmd, t_shell *shell)
 {
+	if (!simple_cmd || !simple_cmd->str || !shell || !shell->env)
+		return (0);
 	if (!simple_cmd->str[0])
 		return (0);
 	if (ft_strcmp(simple_cmd->str[0], "exit") == 0)
@@ -43,12 +44,18 @@ void	ft_start_loop(char **envp)
 {
 	t_shell	shell;
 
+	shell.env = NULL;
+	init_env(envp, &shell);
+
 	while (1)
 	{
-		ft_init_shell(&shell, envp);
+		ft_init_shell(&shell);
 		shell.input_line = readline("Minishell$ ");
 		if (shell.input_line == NULL)
+		{
+			free_env(shell.env);
 			ft_signal_ctr_d();
+		}
 		if (ft_strlen(shell.input_line) > 0)
 		{
 			add_history(shell.input_line);
@@ -71,14 +78,19 @@ void	ft_start_loop(char **envp)
 			}
 			print_tokens(shell.lexer_list);
 			parser_part(shell.count_pipe, &shell.lexer_list, &shell);
-			printf("AVANT\n");
-			print_simple_cmds(shell.commands);
-			init_env(envp, &shell);
+			//printf("AVANT\n");
+			//print_simple_cmds(shell.commands);
+			//init_env(envp, &shell);
 			expand_part(&shell);
 			printf("APRES\n");
 			print_simple_cmds(shell.commands);
-			//execute_builtin(shell.commands, &shell);
+			execute_builtin(shell.commands, &shell);
 			ft_free_tous(&shell);
+		}
+		else
+		{
+			free(shell.input_line);
+			shell.input_line = NULL;
 		}
 	}
 }

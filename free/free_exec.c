@@ -6,12 +6,26 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/26 17:59:09 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/04 19:32:54 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
+void	free_exec_env(char **env)
+{
+	int i;
+
+	if (!env)
+		return;
+	i = 0;
+	while (env[i])
+	{
+		free(env[i]);
+		i++;
+	}
+	free(env);
+}
 void	free_pipes(t_exec *exec)
 {
 	int	i;

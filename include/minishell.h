@@ -258,6 +258,7 @@ void	reset_signals(void);
 void	ft_signal_ctr_c_hd(int status);
 
 //FREE
+void	free_exec_env(char **env);
 void	free_pipes(t_exec *exec);
 void	free_all(t_exec *exec);
 void	free_cmd_argv(t_simple_cmds *parser);

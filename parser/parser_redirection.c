@@ -6,22 +6,11 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 15:21:35 by zserobia          #+#    #+#             */
-/*   Updated: 2024/11/23 16:49:22 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:25:48 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
-static void	free_lexer_str(t_lexer *current)
-{
-	if (current->str)
-	{
-		free(current->str);
-		current->str = NULL;
-	}
-	free(current);
-	current = NULL;
-}
 
 static void	remove_lexer_list(t_lexer **lexer, t_lexer *current, t_lexer *prev)
 {
@@ -74,13 +63,23 @@ int	add_new_redir(t_lexer *current, t_lexer **lexer, t_pars_mini *pars_mini)
 	return (0);
 }
 
+int	handle_initial_token(t_lexer **current)
+{
+	if (*current && (*current)->token == 1)
+	{
+		*current = (*current)->next;
+		return (1);
+	}
+	return (0);
+}
+
 int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini)
 {
 	t_lexer	*current;
+	int		i;
 
 	current = *lexer;
-	if (current && current->token == 1)
-		current = current->next;
+	i = handle_initial_token(&current);
 	while (current && current->token != 1)
 	{
 		if (current->token > 1)
@@ -90,7 +89,7 @@ int	separe_redirections(t_lexer **lexer, t_pars_mini *pars_mini)
 			if (*lexer == NULL)
 				break ;
 			current = *lexer;
-			if (current->token == 1 && current->next)
+			if (current->token == 1 && current->next && i > 0)
 				current = current->next;
 		}
 		else if (current->token == 0 && current->next)

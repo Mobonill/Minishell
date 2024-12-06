@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 14:54:02 by zserobia          #+#    #+#             */
-/*   Updated: 2024/11/23 16:50:33 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/06 15:45:15 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,8 @@ int	ft_read_token_1(char *line, t_lexer **list, int index)
 
 int	create_token(char *value, int type, t_lexer **list, int *index)
 {
-	ft_create_lexer_list(strdup(value), type, (*index)++, list);
-	return (strlen(value));
+	ft_create_lexer_list(ft_strdup(value), type, (*index)++, list);
+	return (ft_strlen(value));
 }
 
 int	special_tokens(char *line, t_lexer **list, int *index, t_shell *shell)

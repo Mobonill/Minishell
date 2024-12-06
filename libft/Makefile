@@ -48,9 +48,9 @@ SRC = ft_isalnum.c ft_isalpha.c \
 	ft_lstmap.c \
 	ft_substr.c \
 	ft_itoa.c \
-	# ft_strlen.c \
-	# ft_strjoin.c \
-	# ft_strdup.c \
+	ft_strlen.c \
+	ft_strjoin.c \
+	ft_strdup.c \
 
 RM = rm -f
 

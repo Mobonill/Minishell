@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 19:32:25 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:12:02 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,13 +48,15 @@ int	execute_minishell(t_shell *shell, t_simple_cmds *parser)
 		memset(exec, 0, sizeof(t_exec)); 
 		execute_single_command(parser, shell, exec);
 	}
-
 	else if (ft_lstsize_minishell(parser) > 1)
 	{
+		exec->env = NULL;
 		exec->path = find_path(parser, shell);
 		exec->num_pipes = ft_lstsize_minishell(parser) - 1;
 		exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
 		exec->fd = malloc(sizeof(int *) * (exec->num_pipes));
+		exec->input = -1;
+		exec->output = -1;
 		if (!exec->fd || !exec->pid)
 		{
 			perror("");
@@ -89,8 +91,6 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 	while (++i <= exec->num_pipes)
 	{
 		exec->pid[i] = fork();
-		printf("pid %d %d\n", i, exec->pid[i]);
-		fflush(stdout);
 		if (exec->pid[i] < 0)
 		{
 			perror("");
@@ -99,14 +99,12 @@ void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 		}
 		else if (exec->pid[i] == 0)
 		{
-			printf("I am going to Child process\n");
-			fflush(stdout);
 			child_process(exec, cur, i, shell);
 		}
 		cur = cur->next;
 	}
-	printf("I am going to parent process\n");
-	fflush(stdout);
+	// printf("I am going to parent process\n");
+	// fflush(stdout);
 	parent_process(exec);
 }
 
@@ -119,39 +117,43 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 	}
 	if (i == 0)
 	{
-		if (exec->input != -1) // Redir STDIN
+		if (exec->input != -1)
 		{
 			if (dup2(exec->input, STDIN_FILENO) < 0)
 			{
 				perror("dup2 input failed");
 				exit(1);
 			}
+			printf("Input redirection applied: fd=%d -> STDIN\n", exec->input);
+			fflush(stdout);
 		}
-		else if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0) // Redir output for pipe
+		if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
 		{
 			perror("dup2 pipe output failed");
 			exit(1);
 		}
-		printf("I was into firts pipe\n");
-		fflush(stdout);
+		// printf("Pipe first %d created: read=%d, write=%d\n", i, exec->fd[i][0], exec->fd[i][1]);
+		// fflush(stdout);
 	}
 	else if (i == exec->num_pipes)
 	{
-		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0) // Redir input for pipe
+		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0)
 		{
 			perror("dup2 pipe input failed");
 			exit(1);
 		}
-		else if (exec->output != -1) // Redir output for pipe
+		// printf("Pipe last %d input: fd=%d -> STDIN\n", i, exec->fd[i - 1][0]);
+		// fflush(stdout);
+		if (exec->output != -1)
 		{
 			if (dup2(exec->output, STDOUT_FILENO) < 0)
 			{
 				perror("dup2 output failed");
 				exit(1);
 			}
+			// printf("Output redirection applied: fd=%d -> STDOUT\n", exec->output);
+			// fflush(stdout);
 		}
-		printf("I was into last pipe\n");
-		fflush(stdout);
 	}
 	else
 	{
@@ -160,12 +162,11 @@ int	child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 			perror("MID dup2 failed\n");
 			exit(1);
 		}
-		printf("I was into mid pipe\n");
-		fflush(stdout);
+		// printf("Pipe mid %d created: input fd=%d -> STDIN, output fd=%d -> STDOUT\n", i, exec->fd[i - 1][0], exec->fd[i][1]);
+		// fflush(stdout);
 	}
 	closing_child_pipes(exec, i);
 	execute_command(parser, shell, exec);
-	parser = parser->next;
 	return (0);
 }
 
@@ -177,6 +178,8 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 
 	while (parser != NULL)
 	{
+		// if (parser->str[0] == NULL)
+		// 	break;
 		if (is_builtin(parser->str[0]))
 		{
 			execute_builtin(parser, shell);
@@ -184,8 +187,8 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		}
 		size_env = ft_envsize_minishell(shell->env);
 		cmd_path = find_path(parser, shell);
-		printf("cmd path = %s \n", cmd_path);
-		fflush(stdout);
+		// printf("cmd path = %s \n", cmd_path);
+		// fflush(stdout);
 		if (!cmd_path)
 		{
 			ft_fprintf(2, "%s: command not found\n", parser->str[0]);
@@ -200,9 +203,9 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 			return;
 		exec->env[size_env] = NULL;
 		transform_env_list_to_tab(shell, exec);
-		printf("parser str = %s\n", parser->str[0]);
-		fflush(stdout);
-		printf(" j'essaye d'exec  %d fois\n", i);
+		// printf("parser str = %s\n", parser->str[0]);
+		// fflush(stdout);
+		// printf(" j'essaye d'exec  %d fois\n", i);
 		fflush(stdout);
 		i++;
 		if (execve(cmd_path, parser->str, exec->env) == -1)
@@ -215,7 +218,9 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		}
 		free(cmd_path);
 		free_cmd_argv(parser);
+		free_all(exec);
 	}
+	parser = parser->next;
 }
 
 int	parent_process(t_exec *exec)
@@ -227,8 +232,8 @@ int	parent_process(t_exec *exec)
 	final_status = 0;
 	while (i < exec->num_pipes)
 	{
-		printf("Parent closed fd[%d][0]\n", i);
-		printf("Parent closed fd[%d][1]\n", i);
+		// printf("Parent closed fd[%d][0]\n", i);
+		// printf("Parent closed fd[%d][1]\n", i);
 		close(exec->fd[i][0]);
 		close(exec->fd[i][1]);
 		++i;
@@ -327,7 +332,7 @@ int	execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 		if (WIFSIGNALED(status))
 			status = 128 + WTERMSIG(exec->status);
 	}
+	// IL FAUT FREE FILENAMES DES HEREDOCS BEFORE UNLINK	
 	unlink(".heredoc_tmp");
-	printf("JE PASSE PAR LA \n");
 	return (0);
 }

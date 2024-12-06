@@ -30,6 +30,7 @@
 # include <readline/history.h>
 # include <signal.h>
 # include <ctype.h>
+# include <stdbool.h>
 
 extern int	g_global_exit;
 
@@ -120,6 +121,7 @@ void			free_lexer_list(t_lexer **lexer);
 void			free_redirections(t_lexer *redirection);
 void			free_simple_cmds_list(t_simple_cmds *commands);
 void			free_command(char **cmd);
+void			free_lexer_str(t_lexer *current);
 char			*ft_strjoin_free(char *s1, char *s2);
 void			ft_free_tous(t_shell *shell);
 
@@ -147,12 +149,8 @@ char			*ft_process2(char *result, char *temp);
 void			print_tokens(t_lexer *list);
 void			print_simple_cmds(t_simple_cmds *cmds);
 int				ft_ifspace(char line);
-size_t			ft_strlen(const char *s);
-char			*ft_strjoin(char const *s1, char const *s2);
-// char			*ft_substr(const char *str, size_t start, size_t len);
-char			*ft_strdup(const char *s);
-// char			*ft_iPARSERtoa(int n);
 
+void			ft_init_shell_1(t_shell *shell);
 t_shell			*ft_init_shell(char **envp);
 void			ft_start_loop(char **envp);
 
@@ -167,22 +165,23 @@ t_simple_cmds	*create_and_add_command(t_lexer *tmp,
 t_simple_cmds	*new_simple_cmd(t_lexer *lexer, t_pars_mini *pars_mini);
 t_simple_cmds	*last_simple_cmd(t_simple_cmds *list);
 void			add_new_simple_cmd(t_simple_cmds **list, t_simple_cmds *new);
-void			parser_part(int count_pipe, t_lexer *lexer_list,
+void			parser_part(int count_pipe, t_lexer **lexer_list,
 					t_shell *shell);
+int				handle_initial_token(t_lexer **current);
 void			expand_part(t_shell *shell);
 char			*process_str(const char *input, t_shell *shell);
 char			*allocate_result(int len);
-int				ft_trouve_len(const char *input, char **envp);
-char			*get_env_value(const char *var_name, char **envp);
+int				ft_trouve_len(const char *input, t_env *env);
+char			*get_env_value(const char *var_name, t_env *env);
 void			handle_dollar(t_shell *shell, const char *str,
 					t_temp *temp, char *result);
 void			handle_quote(const char *input, int *i, char *quote, int *len);
 void			han_quote1(const char *input, char *quote,
 					t_temp *temp, char *result);
 void			handle_variable(const char *input, int *i, int *len,
-					char **envp);
+					t_env *env);
 void			handle_env_variable(const char *input, int *i,
-					int *len, char **envp);
+					int *len, t_env *env);
 void			han_env1(t_shell *shell, const char *str, t_temp *temp,
 					char *result);
 void			handle_exit_status(char *result, t_temp *temp);
@@ -191,6 +190,21 @@ void			ft_signal_ctr_c_hd(int status);
 void			ft_signal_ctr_c(int status);
 void			signals_heredoc(void);
 void			signals(void);
+//void			init_env(char **envp, t_shell *shell);
+void			free_env(t_env *env);
+
+int				builtin_cd(t_simple_cmds *cmd, t_env *env);
+void			cd_to_previous(t_env *env);
+void			cd_to_home(t_env *env);
+void			cd_to_path(const char *path, t_env *env);
+void			update_env(t_env *env, const char *var_name,
+					const char *new_value);
+
+int				builtin_echo(t_simple_cmds *simple_cmd);
+void			print_args(char **args, int index);
+bool			check_n_option(char **args, int *index);
+int				builtin_exit(t_simple_cmds *simple_cmd, t_shell *shell);
+int				is_all_digits(const char *str);
 
 
 // BUILTINS
@@ -250,6 +264,7 @@ char	*get_envp_path(t_env *env);
 // REDIRECTIONS AND HEREDOC
 int		handle_redirections(t_exec *exec, t_simple_cmds *parser);
 int		ft_handle_heredoc(char *str);
+char	*generate_heredoc_filename(int index);
 
 // SIGNALS
 void	signal_heredoc(int sig);

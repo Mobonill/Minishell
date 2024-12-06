@@ -6,24 +6,24 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 15:35:59 by zserobia          #+#    #+#             */
-/*   Updated: 2024/11/23 16:48:52 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:25:16 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char	*get_env_value(const char *var_name, char **envp)
+char	*get_env_value(const char *var_name, t_env *env)
 {
-	size_t	var_len;
-	int		i;
+	t_env	*current;
 
-	var_len = strlen(var_name);
-	i = 0;
-	while (envp[i] != NULL)
+	if (!var_name || !env)
+		return (NULL);
+	current = env;
+	while (current)
 	{
-		if (ft_strncmp(envp[i], var_name, var_len) == 0 && envp[i][var_len] == '=')
-			return (&envp[i][var_len + 1]);
-		i++;
+		if (current->name && ft_strcmp(current->name, var_name) == 0)
+			return (current->value);
+		current = current->next;
 	}
 	return (NULL);
 }
@@ -55,7 +55,7 @@ void	han_env1(t_shell *shell, const char *str, t_temp *temp, char *result)
 	while (isalnum(str[temp->i]) || str[temp->i] == '_')
 		temp->i++;
 	key = ft_substr(str, start, temp->i - start);
-	value = get_env_value(key, shell->envp);
+	value = get_env_value(key, shell->env);
 	if (value)
 	{
 		while (value[k])
@@ -68,7 +68,7 @@ void	handle_dollar(t_shell *shell, const char *str,
 			t_temp *temp, char *result)
 {
 	temp->i++;
-	if (str[temp->i] == '\0' || isspace(str[temp->i]))
+	if (str[temp->i] == '\0' || ft_ifspace(str[temp->i]))
 		result[temp->j++] = '$';
 	else if (str[temp->i] == '?')
 		handle_exit_status(result, temp);

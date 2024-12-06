@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
 int	count_cmd(t_lexer *lexer)
 {
 	int	res;
@@ -41,16 +40,15 @@ static void	advance_to_next_pipe(t_lexer **tmp)
 		*tmp = (*tmp)->next;
 }
 
-void	parser_part(int count_pipe, t_lexer *lexer_list, t_shell *shell)
+void	parser_part(int count_pipe, t_lexer **lexer_list, t_shell *shell)
 {
 	t_lexer	*tmp;
 	int		i;
 
 	i = 0;
-	tmp = lexer_list;
+	tmp = *lexer_list;
 	count_pipe++;
 	shell->pars_mini = malloc(sizeof(t_pars_mini));
-	memset(shell->pars_mini, 0, sizeof(t_pars_mini));
 	if (!shell->pars_mini)
 	{
 		printf("Memory allocation failed for pars_mini\n");
@@ -60,7 +58,7 @@ void	parser_part(int count_pipe, t_lexer *lexer_list, t_shell *shell)
 	{
 		process_redirections(&tmp, shell->pars_mini);
 		if (!i++)
-			lexer_list = tmp;
+			*lexer_list = tmp;
 		else
 			tmp = tmp->next;
 		if (!create_and_add_command(tmp, shell->pars_mini, &shell->commands))

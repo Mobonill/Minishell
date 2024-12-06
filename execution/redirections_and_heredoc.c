@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections_and_heredoc.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/11/27 21:32:29 by morgane          ###   ########.fr       */
-=======
-/*   Updated: 2024/11/28 11:21:16 by mobonill         ###   ########.fr       */
->>>>>>> 0bd304f8008a01d3002fcf47d9d3ba53cecd8af4
+/*   Updated: 2024/12/06 16:11:32 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,72 +24,73 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 			exec->input = open(redir->str, O_RDONLY);
 			if (exec->input < 0)
 				return (perror(redir->str), -1);
-			if (ft_lstsize_minishell(parser) > 1)
-			{
-				if (dup2(exec->input, STDIN_FILENO) < 0)
-					return (perror("dup2 failed"), close(exec->input), -1);
-				close(exec->input);
-			}
+			if (dup2(exec->input, STDIN_FILENO) < 0)
+				return (perror("dup2 failed"), close(exec->input), -1);
+			close(exec->input);
+			exec->input = -1;
 		}
 		else if (redir->token == OUT || redir->token == APPEND)
 		{
-			exec->output = open(redir->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if (redir->token == OUT)
+				exec->output = open(redir->str, O_WRONLY | O_CREAT, 0644);
+			else
+				exec->output = open(redir->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (exec->output < 0)
-			if (ft_lstsize_minishell(parser) > 1)
-			{
 				return (perror(redir->str), -1);
 			if (dup2(exec->output, STDOUT_FILENO) < 0)
 				return (perror("dup2 failed"), close(exec->output), -1);
 			close(exec->output);
-			}
+			exec->output = -1;
 		}
 		else if(redir->token == HEREDOC)
 		{
 			exec->input = ft_handle_heredoc(redir->str);
-				if (exec->input < 0)
-					return (-1);
-			// if (ft_lstsize_minishell(parser) > 1)
-			// {
-				if (dup2(exec->input, STDIN_FILENO) < 0)
-					return (perror("dup2 failed"), close(exec->input), -1);
-				close(exec->input);
+			if (exec->input < 0)
+				return (-1);
+			if (dup2(exec->input, STDIN_FILENO) < 0)
+				return (perror("dup2 failed"), close(exec->input), -1);
+			close(exec->input);
+			exec->input = -1;
 		}
-		printf("I am exiting here ? \n");
 		redir = redir->next;
 	}
-	printf("or I am exiting there ? \n");
 	return (0);
 }
 
 int	ft_handle_heredoc(char *str)
 {
 	char	*line;
+	char	*name;
 	int		tmp_fd;
+	int		index;
 
 	line = NULL;
+	index = 1;
+	name = generate_heredoc_filename(index);
 	heredoc_signals();
-	tmp_fd = open(".heredoc_tmp", O_CREAT | O_WRONLY | O_TRUNC, 0600);
+	tmp_fd = open(name, O_CREAT | O_WRONLY | O_TRUNC, 0600);
 	if (tmp_fd < 0)
 	{
-		perror("heredoc");
+		perror("");
 		return(-1);
 	}
 	while (1)
 	{
 		line = readline(">");
 		if (!line || ft_strcmp(line, str) == 0)
-			break;
+			break; 
 		ft_fprintf(tmp_fd, "%s\n", line);
 		free(line);
 	}
 	free(line);
 	close(tmp_fd);
-	tmp_fd = open(".heredoc_tmp", O_RDONLY);
+	tmp_fd = open(name, O_RDONLY);
 	if (tmp_fd < 0)
 	{
-		perror("dup2 failed");
+		perror("");
 		return (-1);
 	}
 	// reset_signals();
+	index++;
 	return (tmp_fd);
 }

@@ -22,7 +22,9 @@ int	ft_minicheck(char *line)
 	while (ft_ifspace(line[i]))
 		i++;
 	if (i == len)
+	{
 		return (1);
+	}
 	if (line[i] == '|')
 	{
 		printf("-bash: syntax error near unexpected token `|'\n");
@@ -87,15 +89,15 @@ int	ft_check_errors(t_lexer *list)
 			printf("-bash: syntax error near unexpected token `|'\n");
 			return (1);
 		}
-		else if (tmp->token > PIPE && !tmp->next)
-		{
-			printf("-bash: syntax error near unexpected token `newline'\n");
-			return (1);
-		}
 		else if (tmp->token > PIPE && tmp->next && tmp->next->token >= PIPE)
 		{
 			printf("-bash: syntax error near unexpected token `%s'\n",
 				tmp->next->str);
+			return (1);
+		}
+		else if (tmp->token > PIPE && !tmp->next)
+		{
+			printf("-bash: syntax error near unexpected token `newline'\n");
 			return (1);
 		}
 		tmp = tmp->next;

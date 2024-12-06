@@ -6,29 +6,29 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 15:30:20 by zserobia          #+#    #+#             */
-/*   Updated: 2024/11/23 16:30:00 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:26:09 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	handle_env_variable(const char *input, int *i, int *len, char **envp)
+void	handle_env_variable(const char *input, int *i, int *len, t_env *env)
 {
 	int		start;
 	char	*key;
 	char	*value;
 
 	start = *i;
-	while (isalnum(input[*i]) || input[*i] == '_')
+	while (ft_isalnum(input[*i]) || input[*i] == '_')
 		(*i)++;
 	key = ft_substr(input, start, *i - start);
-	value = get_env_value(key, envp);
+	value = get_env_value(key, env);
 	if (value)
 		*len += ft_strlen(value);
 	free(key);
 }
 
-void	handle_variable(const char *input, int *i, int *len, char **envp)
+void	handle_variable(const char *input, int *i, int *len, t_env *env)
 {
 	(*i)++;
 	if (input[*i] == '\0' || ft_ifspace(input[*i]) || input[*i] == '\'')
@@ -38,17 +38,17 @@ void	handle_variable(const char *input, int *i, int *len, char **envp)
 		*len += 11;
 		(*i)++;
 	}
-	else if (isdigit(input[*i]))
+	else if (ft_isdigit(input[*i]))
 	{
 		(*i)++;
-		while (isdigit(input[*i]))
+		while (ft_isdigit(input[*i]))
 		{
 			(*i)++;
 			(*len)++;
 		}
 	}
-	else if (isalpha(input[*i]) || input[*i] == '_')
-		handle_env_variable(input, i, len, envp);
+	else if (ft_isalpha(input[*i]) || input[*i] == '_')
+		handle_env_variable(input, i, len, env);
 	else
 		(*i)++;
 }
@@ -64,7 +64,7 @@ void	handle_quote(const char *input, int *i, char *quote, int *len)
 	(*i)++;
 }
 
-int	ft_trouve_len(const char *input, char **envp)
+int	ft_trouve_len(const char *input, t_env *env)
 {
 	int		i;
 	int		len;
@@ -78,7 +78,7 @@ int	ft_trouve_len(const char *input, char **envp)
 		if (input[i] == '\'' || input[i] == '\"')
 			handle_quote(input, &i, &quote, &len);
 		else if (input[i] == '$' && quote != '\'')
-			handle_variable(input, &i, &len, envp);
+			handle_variable(input, &i, &len, env);
 		else
 		{
 			len++;

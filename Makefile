@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: morgane <morgane@student.42.fr>            +#+  +:+       +#+         #
+#    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/12/03 16:27:21 by morgane          ###   ########.fr        #
+#    Updated: 2024/12/06 16:13:56 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ SRC =	main.c \
 		lexer/lexer_read_token.c \
 		lexer/lexer_check_errors.c \
 		lexer/lexer_create.c \
+		lexer/lexer_create2.c \
 		parser/parser.c \
 		parser/parser_create_cmd.c \
 		parser/parser_dollar.c \
@@ -35,6 +36,7 @@ SRC =	main.c \
 		execution/redirections_and_heredoc.c \
 		execution/execution_utils.c \
 		execution/signals_heredoc.c \
+		execution/heredoc_utils.c \
 		execution/path.c \
 		builtins/ft_env.c \
 		builtins/ft_unset.c \

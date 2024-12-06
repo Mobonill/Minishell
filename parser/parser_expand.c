@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 15:37:38 by zserobia          #+#    #+#             */
-/*   Updated: 2024/11/23 16:26:09 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:25:31 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ char	*process_str(const char *input, t_shell *shell)
 	char	quote;
 	t_temp	temp;
 
-	len = ft_trouve_len(input, shell->envp);
+	len = ft_trouve_len(input, shell->env);
 	result = allocate_result(len);
 	temp = (t_temp){0, 0};
 	quote = '\0';

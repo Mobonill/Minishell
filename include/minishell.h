@@ -88,7 +88,6 @@ typedef struct s_shell
 	t_lexer			*lexer_list;
 	t_simple_cmds	*pars;
 	t_pars_mini		*pars_mini;
-	char			**envp;
 	t_simple_cmds	*commands;
 	t_env			*env;
 	t_env			*hidden;

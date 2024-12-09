@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 19:32:54 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/09 13:57:39 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ void	free_exec_env(char **env)
 	}
 	free(env);
 }
+
+
 void	free_pipes(t_exec *exec)
 {
 	int	i;

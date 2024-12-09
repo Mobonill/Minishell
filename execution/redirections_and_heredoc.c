@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/06 16:11:32 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/09 16:05:55 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 			if (exec->input < 0)
 				return (perror(redir->str), -1);
 			if (dup2(exec->input, STDIN_FILENO) < 0)
-				return (perror("dup2 failed"), close(exec->input), -1);
+				return (perror(""), close(exec->input), -1);
 			close(exec->input);
+			printf("cmd = %s fd in = %d \n", parser->str[0], exec->input);
 			exec->input = -1;
 		}
 		else if (redir->token == OUT || redir->token == APPEND)
@@ -38,9 +39,9 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 			if (exec->output < 0)
 				return (perror(redir->str), -1);
 			if (dup2(exec->output, STDOUT_FILENO) < 0)
-				return (perror("dup2 failed"), close(exec->output), -1);
+				return (perror(""), close(exec->output), -1);
+			printf("cmd = %s fd out = %d \n", parser->str[0], exec->output);
 			close(exec->output);
-			exec->output = -1;
 		}
 		else if(redir->token == HEREDOC)
 		{
@@ -48,7 +49,7 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 			if (exec->input < 0)
 				return (-1);
 			if (dup2(exec->input, STDIN_FILENO) < 0)
-				return (perror("dup2 failed"), close(exec->input), -1);
+				return (perror(""), close(exec->input), -1);
 			close(exec->input);
 			exec->input = -1;
 		}

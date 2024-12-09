@@ -1,16 +1,2 @@
-builtins
-envp.c
-envp.o
-execution
-free
-include
-infile
-lexer
-libft
-main.c
-main.o
-Makefile
-minishell
-out
-outfile
-parser
+cmd = wc fd out = 5 
+Hello there

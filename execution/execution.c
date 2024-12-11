@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/09 16:20:34 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/11 15:59:42 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,21 +46,19 @@ int execute_minishell(t_shell *shell, t_simple_cmds *parser)
 	int i;
 
 	exec = NULL;
+	i = -1;
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
 	if (ft_lstsize_minishell(parser) == 1)
 	{
+		ft_memset(exec, 0, sizeof(t_exec));
 		if (is_builtin(parser->str[0]))
 		{
 			int builtin_status = execute_builtin(parser, shell);
 			return (builtin_status);
 		}
 	}
-	// 	ft_memset(exec, 0, sizeof(t_exec));
-	// 	execute_single_command(parser, shell, exec);
-	// else if (ft_lstsize_minishell(parser) > 1)
-	// {
 	exec->env = NULL;
 	exec->path = find_path(parser, shell);
 	exec->num_pipes = ft_lstsize_minishell(parser) - 1;
@@ -79,15 +77,18 @@ int execute_minishell(t_shell *shell, t_simple_cmds *parser)
 		exec->fd[i] = malloc(sizeof(int) * 2);
 		if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
 		{
+			cleanup_and_exit(exec, shell);
 			return (errno);
 		}
 	}
 	fork_system_call(parser, exec, shell);
 	free(exec->pid);
-	for (i = 0; i < exec->num_pipes; i++)
-		free(exec->fd[i]);
-	free(exec->fd);
-	// }
+	if (exec->fd)
+	{
+		while (++i < exec->num_pipes)
+			free(exec->fd[i]);
+		free(exec->fd);
+	}
 	free(exec);
 	return (0);
 }
@@ -105,7 +106,7 @@ void fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 		if (exec->pid[i] < 0)
 		{
 			perror("");
-			// free_all(exec);
+			free_all(exec);
 			exit(errno);
 		}
 		else if (exec->pid[i] == 0)
@@ -114,17 +115,9 @@ void fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 		}
 		cur = cur->next;
 	}
-	// printf("I am going to parent process\n");
-	// fflush(stdout);
+	printf("I am going to parent process\n");
+	fflush(stdout);
 	parent_process(exec);
-}
-void cleanup_and_exit(t_exec *exec, t_shell *shell, int exit_code)
-{
-	(void)shell;
-	free_exec_env(exec->env);
-	free_all(exec);				 // Si vous avez une fonction qui libère tout
-	// free_shell_resources(shell); // Si nécessaire
-	exit(exit_code);
 }
 
 int child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
@@ -134,61 +127,50 @@ int child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 		perror("");
 		exit(1);
 	}
-	if (i == 0)
+	if (exec->num_pipes > 0)
 	{
-		// if (exec->input != -1)
-		// {
-		// 	printf("exec input = %d in exec\n", exec->input);
-		// 	if (dup2(exec->input, STDIN_FILENO) < 0)
-		// 	{
-		// 		perror("dup2 input failed");
-		// 		cleanup_and_exit(exec, shell, 1);
-		// 	}
-		// 	printf("Input redirection applied: fd=%d -> STDIN\n", exec->input);
-		// 	fflush(stdout);
-		// }
-		printf("input fd = %d\n", exec->input);
-		printf("output fd = %d\n", exec->output);
-		if (exec->output != -1)
-			dup2(exec->output, STDOUT_FILENO);
-		else if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
+		if (i == 0)
 		{
-			perror("");
-			cleanup_and_exit(exec, shell, 1);
-		}
-		// printf("Pipe first %d created: read=%d, write=%d\n", i, exec->fd[i][0], exec->fd[i][1]);
-		// fflush(stdout);
-	}
-	else if (i == exec->num_pipes)
-	{
-		printf("Hello there\n");
-		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0)
-		{
-			perror("");
-			cleanup_and_exit(exec, shell, 1);
-		}
-		// printf("Pipe last %d input: fd=%d -> STDIN\n", i, exec->fd[i - 1][0]);
-		// fflush(stdout);
-		if (exec->output != -1)
-		{
-			if (dup2(exec->output, STDOUT_FILENO) < 0)
+			if (exec->output != -1)
+				dup2(exec->output, STDOUT_FILENO);
+			else if (dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
 			{
 				perror("");
-				cleanup_and_exit(exec, shell, 1);
+				cleanup_and_exit(exec, shell);
 			}
-			// printf("Output redirection applied: fd=%d -> STDOUT\n", exec->output);
-			// fflush(stdout);
+			printf("Pipe first %d created: read=%d, write=%d\n", i, exec->fd[i][0], exec->fd[i][1]);
+			fflush(stdout);
 		}
-	}
-	else
-	{
-		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0 || dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
+		else if (i == exec->num_pipes)
 		{
-			perror("");
-			cleanup_and_exit(exec, shell, 1);
+			if (dup2(exec->fd[i - 1][0], STDIN_FILENO < 0))
+			{
+				perror("");
+				cleanup_and_exit(exec, shell);
+			}
+			printf("Pipe last %d input: fd=%d -> STDIN\n", i, exec->fd[i - 1][0]);
+			fflush(stdout);
+			if (exec->output != -1)
+			{
+				if (dup2(exec->output, STDOUT_FILENO) < 0)
+				{
+					perror("");
+					cleanup_and_exit(exec, shell);
+				}
+				printf("Output redirection applied: fd=%d -> STDOUT\n", exec->output);
+				fflush(stdout);
+			}
 		}
-		// printf("Pipe mid %d created: input fd=%d -> STDIN, output fd=%d -> STDOUT\n", i, exec->fd[i - 1][0], exec->fd[i][1]);
-		// fflush(stdout);
+		else
+		{
+			if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0 || dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
+			{
+				perror("");
+				cleanup_and_exit(exec, shell);
+			}
+			printf("Pipe mid %d created: input fd=%d -> STDIN, output fd=%d -> STDOUT\n", i, exec->fd[i - 1][0], exec->fd[i][1]);
+			fflush(stdout);
+		}
 	}
 	closing_child_pipes(exec, i);
 	execute_command(parser, shell, exec);
@@ -321,10 +303,6 @@ int execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 	if (is_builtin(parser->str[0]))
 	{
 		builtin_status = execute_builtin(parser, shell);
-		// dup2(dup(STDIN_FILENO), STDIN_FILENO);
-		// dup2(dup(STDOUT_FILENO), STDOUT_FILENO);
-		// close(dup(STDIN_FILENO));
-		// close(dup(STDOUT_FILENO));
 		return (builtin_status);
 	}
 	cmd_path = find_path(parser, shell);

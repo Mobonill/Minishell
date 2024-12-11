@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/09 16:05:55 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/11 16:11:49 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 				return (perror(""), close(exec->input), -1);
 			close(exec->input);
 			printf("cmd = %s fd in = %d \n", parser->str[0], exec->input);
-			exec->input = -1;
+			if (exec->input != -1)
+				close(exec->input);
 		}
 		else if (redir->token == OUT || redir->token == APPEND)
 		{
@@ -41,7 +42,6 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 			if (dup2(exec->output, STDOUT_FILENO) < 0)
 				return (perror(""), close(exec->output), -1);
 			printf("cmd = %s fd out = %d \n", parser->str[0], exec->output);
-			close(exec->output);
 		}
 		else if(redir->token == HEREDOC)
 		{
@@ -91,7 +91,6 @@ int	ft_handle_heredoc(char *str)
 		perror("");
 		return (-1);
 	}
-	// reset_signals();
 	index++;
 	return (tmp_fd);
 }

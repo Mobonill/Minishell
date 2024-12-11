@@ -1,2 +1,4 @@
 cmd = wc fd out = 5 
-Hello there
+Pipe last 1 input: fd=3 -> STDIN
+Output redirection applied: fd=5 -> STDOUT
+     16      21     143

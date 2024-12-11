@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:21:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 17:00:06 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/11 16:12:48 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,29 +36,16 @@ void closing_child_pipes(t_exec *exec, int current_index)
 	int j;
 
 	j = -1;
+	if (exec->output != -1)
+		close(exec->output);
+	if (!exec->fd)
+		return;
 	while (++j < exec->num_pipes)
 	{
-		if (current_index == 0 && j == current_index)
-		{
+		if (j != current_index - 1)
 			close(exec->fd[j][0]);
-		}
-		if (current_index == exec->num_pipes && j == current_index - 1)
-		{
+		if (j != current_index)
 			close(exec->fd[j][1]);
-		}
-		if (current_index > 0 && current_index < exec->num_pipes)
-		{
-			if (j == current_index - 1)
-			{
-				close(exec->fd[j][1]);
-			}
-			if (j == current_index)
-			{
-				close(exec->fd[j][0]);
-			}
-		}
-		close(exec->fd[j][0]);
-		close(exec->fd[j][1]);
 	}
 }
 
@@ -98,4 +85,10 @@ int is_builtin(char *cmd)
 {
 	return (!ft_strcmp(cmd, "cd") || !ft_strcmp(cmd, "export") || !ft_strcmp(cmd, "unset") ||
 			!ft_strcmp(cmd, "env") || !ft_strcmp(cmd, "exit") || !ft_strcmp(cmd, "echo"));
+}
+void cleanup_and_exit(t_exec *exec, t_shell *shell)
+{
+	free_exec_env(exec->env);
+	ft_free_tous(shell);
+	exit(errno);
 }

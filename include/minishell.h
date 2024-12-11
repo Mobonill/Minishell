@@ -241,6 +241,7 @@ int		manage_dup(int oldfd, int newfd);
 int		ft_lstsize_minishell(t_simple_cmds *lst);
 int		ft_envsize_minishell(t_env *lst);
 int		is_builtin(char *cmd);
+void cleanup_and_exit(t_exec *exec, t_shell *shell);
 
 
 // EXECUTION

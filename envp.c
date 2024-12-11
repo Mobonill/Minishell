@@ -28,7 +28,7 @@ void	ft_envclear(t_env **env, void (*del)(void *))
 		*env = temp;
 	}
 }
-void	free_env(t_env *env)
+/*void	free_env(t_env *env)
 {
 	t_env	*cur;
 
@@ -36,6 +36,26 @@ void	free_env(t_env *env)
 	while (cur != NULL)
 	{
 		ft_envclear(&cur, free);
+	}
+}*/
+void	free_env(t_env *env)
+{
+	t_env	*tmp;
+
+	while (env)
+	{
+		tmp = env;
+		env = env->next;
+		if (tmp->name) {
+			free(tmp->name);
+		}
+		if (tmp->value) {
+			free(tmp->value);
+		}
+		if (tmp->content) {
+			free(tmp->content);
+		}
+		free(tmp);
 	}
 }
 

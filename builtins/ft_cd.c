@@ -20,7 +20,7 @@ void	update_env(t_env *env, const char *var_name, const char *new_value)
 		{
 			free(env->value);
 			env->value = ft_strdup(new_value);
-			printf("NEW %s now %s\n", env->name, env->value);
+			printf("NEW %s now %s\n", env->name, env->value);//del
 			return ;
 		}
 		env = env->next;
@@ -35,10 +35,10 @@ void	cd_to_path(const char *path, t_env *env)
 	char	*new_path;
 
 	current_path = getcwd(NULL, 0);
-	printf("current path = %s\n", current_path);
+	printf("current path = %s\n", current_path); //del
 	if (!current_path)
 	{
-		perror("bash: cd: error getting current directory");
+		printf("bash: cd: error getting current directory");
 		return ;
 	}
 	if (chdir(path) == -1)
@@ -46,7 +46,7 @@ void	cd_to_path(const char *path, t_env *env)
 	else
 	{
 		new_path = getcwd(NULL, 0);
-		printf("new_path = %s\n", new_path);
+		printf("new_path = %s\n", new_path);//del
 		if (new_path)
 		{
 			update_env(env, "OLDPWD", current_path);
@@ -75,7 +75,7 @@ void	cd_to_previous(t_env *env)
 	char	*old_path;
 
 	old_path = get_env_value("OLDPWD", env);
-	printf("OLD PATH %s\n", old_path);
+	printf("OLD PATH %s\n", old_path);//del
 	if (!old_path)
 	{
 		printf("bash: cd: OLDPWD not set\n");
@@ -83,32 +83,16 @@ void	cd_to_previous(t_env *env)
 	}
 	cd_to_path(old_path, env);
 }
-/*
-void cd_to_previous(t_env *env)
+
+void	handle_relative_or_absolute_path(const char *path, t_env *env)
 {
-    char *old_path;
-
-    old_path = get_env_value("OLDPWD", env);
-    printf("OLD PATH %s\n", old_path);
-    if (!old_path) {
-        printf("bash: cd: OLDPWD not set\n");
-        return;
-    }
-
-    // Save the current PWD as OLDPWD before changing directories
-    char *current_path = getcwd(NULL, 0);
-    if (!current_path) {
-        perror("bash: cd: error getting current directory");
-        return;
-    }
-
-    // Change to the OLDPWD directory
-    cd_to_path(old_path, env);  // Change directory to OLDPWD
-
-    // After changing directory, we need to update OLDPWD to the previous PWD
-    update_env(env, "OLDPWD", current_path);
-    free(current_path);
-}*/
+	if (!path || ft_strcmp(path, ".") == 0)
+		return ;
+	else if (ft_strcmp(path, "..") == 0)
+		cd_to_path("..", env);
+	else
+		cd_to_path(path, env);
+}
 
 int	builtin_cd(t_simple_cmds *cmd, t_env *env)
 {
@@ -130,6 +114,6 @@ int	builtin_cd(t_simple_cmds *cmd, t_env *env)
 	else if (arg_count == 2 && ft_strcmp(cmd->str[1], "-") == 0)
 		cd_to_previous(env);
 	else
-		cd_to_path(cmd->str[1], env);
+		handle_relative_or_absolute_path(cmd->str[1], env);
 	return (0);
 }

@@ -194,6 +194,7 @@ void			signals(void);
 void			free_env(t_env *env);
 
 int				builtin_cd(t_simple_cmds *cmd, t_env *env);
+void			handle_relative_or_absolute_path(const char *path, t_env *env);
 void			cd_to_previous(t_env *env);
 void			cd_to_home(t_env *env);
 void			cd_to_path(const char *path, t_env *env);
@@ -212,11 +213,18 @@ int				is_all_digits(const char *str);
 void	ft_env(t_env *env);
 
 //			export
-void	modify_env_value(t_env *cur, char * limit);
-void	create_new_env_node(char *to_compare, t_env *cur, char *limit, char *export);
-void	ft_export(char	**export, t_shell *shell);
+int		builtin_export(t_simple_cmds *simple_cmd, t_shell *shell);
+void	process_export_argument(char *arg, t_env **env);
+void	handle_new_or_existing_env(char *to_compare, char *limit,
+		char *export, t_env **env);
+void	sort_env_list(t_env *env);
 void	swap_env(t_env *cur);
-void	sort_env_list(t_env *cur, t_shell *shell);
+void	print_sorted_env(t_env *env);
+void	create_new_env_node(char *to_compare, t_env **env,
+		char *limit, char *export);
+void	initialize_env_node(t_env *new_node, char *export);
+void	modify_env_value(t_env *cur, char * limit);
+bool	is_valid_identifier(const char *str);
 
 //			pwd
 void	ft_pwd(t_env *env);

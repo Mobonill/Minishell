@@ -70,30 +70,6 @@ void	cd_to_home(t_env *env)
 	cd_to_path(home_path, env);
 }
 
-void	cd_to_previous(t_env *env)
-{
-	char	*old_path;
-
-	old_path = get_env_value("OLDPWD", env);
-	printf("OLD PATH %s\n", old_path);//del
-	if (!old_path)
-	{
-		printf("bash: cd: OLDPWD not set\n");
-		return ;
-	}
-	cd_to_path(old_path, env);
-}
-
-void	handle_relative_or_absolute_path(const char *path, t_env *env)
-{
-	if (!path || ft_strcmp(path, ".") == 0)
-		return ;
-	else if (ft_strcmp(path, "..") == 0)
-		cd_to_path("..", env);
-	else
-		cd_to_path(path, env);
-}
-
 int	builtin_cd(t_simple_cmds *cmd, t_env *env)
 {
 	int	arg_count;
@@ -107,13 +83,11 @@ int	builtin_cd(t_simple_cmds *cmd, t_env *env)
 	{
 		printf("bash: cd: too many arguments\n");
 		g_global_exit = 1;
+		return (1);
 	}
-	else if (arg_count == 1
-		|| (arg_count == 2 && ft_strcmp(cmd->str[1], "--") == 0))
+	else if (arg_count == 1)
 		cd_to_home(env);
-	else if (arg_count == 2 && ft_strcmp(cmd->str[1], "-") == 0)
-		cd_to_previous(env);
 	else
-		handle_relative_or_absolute_path(cmd->str[1], env);
+		cd_to_path(cmd->str[1], env);
 	return (0);
 }

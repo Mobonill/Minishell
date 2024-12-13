@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections_and_heredoc.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/11 16:11:49 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/13 14:47:45 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 {
 	t_lexer	*redir;
-
+	int		fd_heredoc;
+	
+	exec->heredoc_index = 0;
 	redir = parser->redirections;
 	while (redir != NULL)
 	{
@@ -27,7 +29,7 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 			if (dup2(exec->input, STDIN_FILENO) < 0)
 				return (perror(""), close(exec->input), -1);
 			close(exec->input);
-			printf("cmd = %s fd in = %d \n", parser->str[0], exec->input);
+			// printf("cmd = %s fd in = %d \n", parser->str[0], exec->input);
 			if (exec->input != -1)
 				close(exec->input);
 		}
@@ -41,33 +43,42 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 				return (perror(redir->str), -1);
 			if (dup2(exec->output, STDOUT_FILENO) < 0)
 				return (perror(""), close(exec->output), -1);
-			printf("cmd = %s fd out = %d \n", parser->str[0], exec->output);
+			// printf("cmd = %s fd out = %d \n", parser->str[0], exec->output);
 		}
 		else if(redir->token == HEREDOC)
 		{
-			exec->input = ft_handle_heredoc(redir->str);
-			if (exec->input < 0)
-				return (-1);
-			if (dup2(exec->input, STDIN_FILENO) < 0)
-				return (perror(""), close(exec->input), -1);
-			close(exec->input);
-			exec->input = -1;
+			if (exec->num_heredoc == 0)
+			{
+				exec->heredoc_fd = malloc(sizeof(int) * count_heredocs(parser->redirections));
+				if (!exec->heredoc_fd)
+				{
+					perror("malloc failed");
+					return (-1);
+				}
+				fd_heredoc = ft_handle_heredoc(redir->str, exec->heredoc_index);
+				if (fd_heredoc < 0)
+					return (-1);
+				if (dup2(fd_heredoc, STDIN_FILENO) < 0)
+					return (perror(""), close(fd_heredoc), -1);
+				close(fd_heredoc);
+				exec->heredoc_index++;
+			}
+			redir = redir->next;
 		}
-		redir = redir->next;
 	}
 	return (0);
 }
 
-int	ft_handle_heredoc(char *str)
+int	ft_handle_heredoc(char *str, int index)
 {
 	char	*line;
 	char	*name;
 	int		tmp_fd;
-	int		index;
-
+	
 	line = NULL;
-	index = 1;
 	name = generate_heredoc_filename(index);
+	if (!name)
+		return(-1);
 	heredoc_signals();
 	tmp_fd = open(name, O_CREAT | O_WRONLY | O_TRUNC, 0600);
 	if (tmp_fd < 0)
@@ -88,9 +99,10 @@ int	ft_handle_heredoc(char *str)
 	tmp_fd = open(name, O_RDONLY);
 	if (tmp_fd < 0)
 	{
+		free(name);
 		perror("");
 		return (-1);
 	}
-	index++;
+	free(name);
 	return (tmp_fd);
 }

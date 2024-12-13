@@ -104,8 +104,11 @@ typedef struct s_exec
 {
 	int		input;
 	int		output;
+	int		num_heredoc;
 	int		**fd;
+	int		*heredoc_fd;
 	int		status;
+	int		heredoc_index;
 	int		num_pipes;
 	char	**env;
 	char	*path;
@@ -241,7 +244,7 @@ int		manage_dup(int oldfd, int newfd);
 int		ft_lstsize_minishell(t_simple_cmds *lst);
 int		ft_envsize_minishell(t_env *lst);
 int		is_builtin(char *cmd);
-void cleanup_and_exit(t_exec *exec, t_shell *shell);
+void	cleanup_and_exit(t_exec *exec, t_shell *shell);
 
 
 // EXECUTION
@@ -263,8 +266,10 @@ char	*get_envp_path(t_env *env);
 
 // REDIRECTIONS AND HEREDOC
 int		handle_redirections(t_exec *exec, t_simple_cmds *parser);
-int		ft_handle_heredoc(char *str);
+int		ft_handle_heredoc(char *str, int index);
 char	*generate_heredoc_filename(int index);
+int		count_heredocs(t_lexer *redirections);
+void	cleanup_heredoc_files(t_exec *exec);
 
 // SIGNALS
 void	signal_heredoc(int sig);

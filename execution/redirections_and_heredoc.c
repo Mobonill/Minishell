@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections_and_heredoc.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/13 14:47:45 by morgane          ###   ########.fr       */
+/*   Updated: 2024/12/13 19:09:32 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 {
 	t_lexer	*redir;
 	int		fd_heredoc;
+	int		i;
 	
+	i = -1;
 	exec->heredoc_index = 0;
 	redir = parser->redirections;
 	while (redir != NULL)
@@ -45,26 +47,32 @@ int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
 				return (perror(""), close(exec->output), -1);
 			// printf("cmd = %s fd out = %d \n", parser->str[0], exec->output);
 		}
-		else if(redir->token == HEREDOC)
+		else if (redir->token == HEREDOC)
 		{
 			if (exec->num_heredoc == 0)
 			{
-				exec->heredoc_fd = malloc(sizeof(int) * count_heredocs(parser->redirections));
+				exec->num_heredoc = count_heredocs(parser->redirections);
+				exec->heredoc_fd = malloc(sizeof(int) * exec->num_heredoc);
 				if (!exec->heredoc_fd)
 				{
-					perror("malloc failed");
+					perror("");
 					return (-1);
 				}
-				fd_heredoc = ft_handle_heredoc(redir->str, exec->heredoc_index);
-				if (fd_heredoc < 0)
-					return (-1);
-				if (dup2(fd_heredoc, STDIN_FILENO) < 0)
-					return (perror(""), close(fd_heredoc), -1);
-				close(fd_heredoc);
-				exec->heredoc_index++;
+				while (++i < exec->num_heredoc)
+					exec->heredoc_fd[i] = -1;
 			}
-			redir = redir->next;
+			fd_heredoc = ft_handle_heredoc(redir->str, exec->heredoc_index);
+			if (fd_heredoc < 0)
+				return (-1);
+			exec->heredoc_fd[exec->heredoc_index] = fd_heredoc;
+			exec->heredoc_index++;
 		}
+		redir = redir->next;
+	}
+	if (!parser || !parser->str || !parser->str[0])
+	{
+		cleanup_heredoc_files(exec);
+		return (0);
 	}
 	return (0);
 }

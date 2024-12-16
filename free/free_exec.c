@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_exec.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 19:32:54 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/11 21:34:00 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ void	free_exec_env(char **env)
 	}
 	free(env);
 }
+
+
 void	free_pipes(t_exec *exec)
 {
 	int	i;
@@ -35,7 +37,7 @@ void	free_pipes(t_exec *exec)
 	if (exec->fd)
 	{
 		i = 0;
-		while (i <= exec->num_pipes + 2)
+		while (i < exec->num_pipes)
 		{
 			if (exec->fd[i])
 			{

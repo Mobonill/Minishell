@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/12/06 16:13:56 by mobonill         ###   ########.fr        #
+#    Updated: 2024/12/09 15:10:55 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,10 @@ SRC =	main.c \
 		execution/path.c \
 		builtins/ft_env.c \
 		builtins/ft_unset.c \
-		# builtins/ft_pwd.c \
+		builtins/ft_pwd.c \
+		builtins/ft_echo.c \
+		builtins/ft_cd.c \
+		builtins/ft_exit.c \
 		# builtins/ft_export.c \
 		
 

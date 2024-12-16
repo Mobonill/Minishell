@@ -1,16 +1,1 @@
-builtins
-envp.c
-envp.o
-execution
-free
-include
-infile
-lexer
-libft
-main.c
-main.o
-Makefile
-minishell
-out
-outfile
-parser
+     15      15     105

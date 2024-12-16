@@ -1,0 +1,20 @@
+cmd = ls fd out = 3 
+builtins
+envp.c
+envp.o
+execution
+free
+in
+include
+lexer
+libft
+main.c
+main.o
+Makefile
+minishell
+minishell_tester
+out
+parser
+wc
+[?2004hMinishell$ [?2004l
+exit

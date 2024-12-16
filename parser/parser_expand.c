@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 15:37:38 by zserobia          #+#    #+#             */
-/*   Updated: 2024/12/06 16:25:31 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/16 16:39:44 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,8 @@ void	expand_part(t_shell *shell)
 	char			*str;
 	char			*new_str;
 
+	str = NULL;
+	new_str = NULL;
 	current_command = shell->commands;
 	while (current_command)
 	{

@@ -75,6 +75,7 @@ void	ft_start_loop(char **envp)
 			// printf("APRES\n");
 			// print_simple_cmds(shell->commands);
 			execute_minishell(shell, shell->commands);
+			ft_printf("Last exit status: %d\n", g_global_exit);
 			ft_free_tous(shell);
 		}
 		else

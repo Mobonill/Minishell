@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_exec.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/11 21:34:00 by morgane          ###   ########.fr       */
+/*   Updated: 2024/12/16 17:41:21 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,14 @@ void	free_cmd_argv(t_simple_cmds *parser)
 	int i;
 
 	i = 0;
+	if (parser == NULL || parser->str == NULL)
+		return ;
 	while (parser->str[i])
 	{
-		free(parser->str[i]);
+		if (parser->str[i] != NULL)
+			free(parser->str[i]);
 		i++;
 	}
 	free(parser->str);
+	parser->str = NULL;
 }

@@ -256,6 +256,8 @@ void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
 int		parent_process(t_exec *exec, t_simple_cmds *parser);
 int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
 int		execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
+int		init_fds(t_exec *exec, t_shell *shell, int i);
+int		init_exec(t_shell *shell, t_simple_cmds *parser, t_exec *exec);
 
 
 // PATH

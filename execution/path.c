@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 19:26:03 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/16 15:59:06 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,6 @@ char	*find_path(t_simple_cmds *parser, t_shell *shell)
 	char	*envp_path;
 	char	*cmd_path;
 
-	if (!parser->str || !parser->str[0])
-		return (NULL);
 	envp_path = get_envp_path(shell->env);
 	if (!envp_path || ft_strlen(envp_path) == 0)
 	{

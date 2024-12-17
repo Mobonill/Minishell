@@ -12,7 +12,6 @@
 
 #include "../include/minishell.h"
 
-int	g_global_exit = 0;
 
 void	ft_init_shell_1(t_shell *shell)
 {
@@ -29,6 +28,7 @@ void	ft_init_shell_1(t_shell *shell)
 void	ft_start_loop(char **envp)
 {
 	t_shell *shell;
+
 
 	shell = malloc(sizeof(t_shell));
 	if (!shell)
@@ -74,7 +74,7 @@ void	ft_start_loop(char **envp)
 			expand_part(shell);
 			// printf("APRES\n");
 			// print_simple_cmds(shell->commands);
-			execute_minishell(shell, shell->commands);
+			g_global_exit = execute_minishell(shell, shell->commands);
 			ft_printf("Last exit status: %d\n", g_global_exit);
 			ft_free_tous(shell);
 		}

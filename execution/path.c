@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/16 17:43:42 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:14:39 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,32 +73,26 @@ char	*find_path(t_simple_cmds *parser, t_shell *shell)
 	char **path;
 	char *envp_path;
 	char *cmd_path;
+
 	if (!parser || !parser->str || !parser->str[0])
-	{
-		fprintf(stderr, "Error: Invalid parser or command.\n");
 		return NULL;
-	}
-	// Get PATH from environment
 	envp_path = get_envp_path(shell->env);
 	if (!envp_path || ft_strlen(envp_path) == 0)
 	{
-		free(envp_path); // Free envp_path before checking the command
+		free(envp_path);
 		if (access(parser->str[0], X_OK) == 0)
 			return ft_strdup(parser->str[0]);
 		perror("Command not found and PATH is empty");
 		return NULL;
 	}
-	// Split PATH into directories
 	path = ft_split(envp_path, ':');
-	free(envp_path); // Always free envp_path after use
+	free(envp_path);
 	if (!path)
 	{
 		perror("Error splitting PATH");
 		return NULL;
 	}
-	// Find the command in PATH
 	cmd_path = find_command_in_path(parser->str[0], path);
-	// Free allocated memory for path array
 	free_path(path);
 	return cmd_path;
 }

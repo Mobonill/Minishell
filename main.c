@@ -6,11 +6,13 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:26:52 by mobonill          #+#    #+#             */
-/*   Updated: 2024/11/26 16:07:58 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/17 18:19:45 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./include/minishell.h"
+
+int	g_global_exit = 0;
 
 int	main(int argc, char **argv, char **envp)
 {

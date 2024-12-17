@@ -6,7 +6,7 @@
 #    By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/25 17:35:37 by mobonill          #+#    #+#              #
-#    Updated: 2024/12/16 17:41:29 by mobonill         ###   ########.fr        #
+#    Updated: 2024/12/17 19:44:49 by mobonill         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,7 @@ SRC =	main.c \
 		builtins/ft_echo.c \
 		builtins/ft_cd.c \
 		builtins/ft_exit.c \
-		# builtins/ft_export.c \
+		builtins/ft_export.c \
 		
 
 RM = rm -f

@@ -6,39 +6,42 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/17 21:01:09 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/18 20:34:49 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-// char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
-// {
-// 	t_env *cur;
-// 	int i;
-// 	int size_env;
+char **transform_env_list_to_tab(t_shell *shell, t_exec *exec)
+{
+	t_env	*cur;
+	int		i;
+	int		size_env;
 
-// 	cur = shell->env;
-// 	i = 0;
-// 	size_env = ft_envsize_minishell(shell->env);
-// 	exec->env = malloc(sizeof(char *) * (size_env + 1));
-// 	if (!exec->env)
-// 		return NULL;
-// 	exec->env[size_env] = NULL;
-// 	while (cur)
-// 	{
-// 		exec->env[i] = ft_strdup(cur->content);
-// 		if (!exec->env[i])
-// 		{
-// 			while (i-- > 0)
-// 				free(exec->env[i]);
-// 			free(exec->env);
-// 		}
-// 		cur = cur->next;
-// 		i++;
-// 	}
-// 	return (exec->env);
-// }
+	cur = shell->env;
+	size_env = ft_envsize_minishell(shell->env);
+	exec->env = malloc(sizeof(char *) * (size_env + 1));
+	if (!exec->env)
+		return NULL;
+	exec->env[size_env] = NULL;
+	i = 0;
+	while (cur)
+	{
+		exec->env[i] = ft_strdup(cur->content);
+		if (!exec->env[i])
+		{
+			while (--i >= 0)
+				free(exec->env[i]);
+			free(exec->env);
+			exec->env = NULL;
+			return NULL;
+		}
+		cur = cur->next;
+		i++;
+	}
+	return exec->env;
+}
+
 
 int init_exec_memory(t_exec *exec, t_simple_cmds *parser)
 {
@@ -52,7 +55,7 @@ int init_exec_memory(t_exec *exec, t_simple_cmds *parser)
 	if (!exec->fd || !exec->pid)
 	{
 		perror("");
-		cleanup_heredoc_files(exec);
+		// cleanup_heredoc_files(exec);
 		free(exec->fd);
 		free(exec->pid);
 		free(exec);
@@ -219,21 +222,20 @@ void fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 
 int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
+	(void)shell;
 	if (handle_redirections(exec, parser) < 0)
-	{
-		perror("");
-		return 1;
-	}
+		return (1);
+	if (LastHeredocIsRedirected(exec) != 0)
+		return (-1);
+	if (!parser || !parser->str || !parser->str[0])
+		return (cleanup_heredoc_files(exec), 0);
 	if (exec->num_heredoc > 0 && i < exec->num_heredoc)
 	{
-		if (dup2(exec->heredoc_fd[i], STDIN_FILENO) < 0)
+		if (exec->heredoc_fd[i] != -1)
 		{
-			perror("");
-			cleanup_and_exit(exec, shell);
-			return (1);
+			close(exec->heredoc_fd[i]);
+			exec->heredoc_fd[i] = -1;
 		}
-		close(exec->heredoc_fd[i]);
-		exec->heredoc_fd[i] = -1;
 	}
 	return (0);
 }
@@ -287,18 +289,15 @@ int handle_last_pipe(t_exec *exec, int i)
 int child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
 	if (handle_redirections_and_heredoc(exec, parser, i, shell) < 0)
-		return (1);
+		exit (1);
 	if ((!parser || !parser->str || !parser->str[0]) && exec->num_pipes == 0)
-	{
-		cleanup_heredoc_files(exec);
 		exit(0);
-	}
 	if (handle_first_pipe(exec, i) < 0)
-		return (1);
+		exit (1);
 	if (handle_last_pipe(exec, i) < 0)
-		return (1);
+		exit (1);
 	if (handle_middle_pipe(exec, i) < 0)
-		return (1);
+		exit (1);
 	closing_child_pipes(exec, i);
 	execute_command(parser, shell, exec);
 	return 0;
@@ -325,28 +324,51 @@ void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
 		exit(127);
 	}
 }
+void	create_exec_env(t_shell *shell, t_exec *exec, char *cmd_path, t_simple_cmds *parser)
+{
+	int	size_env;
+
+	size_env = 0;
+	if (exec->env != NULL)
+		{
+			size_env = ft_envsize_minishell(shell->env);
+			exec->env = malloc(sizeof(char *) * (size_env + 1));
+			if (!exec->env)
+			{
+				perror("");
+				free_all(exec);
+				exit(1);
+			}
+			exec->env[size_env] = NULL;
+			exec->env = transform_env_list_to_tab(shell, exec);
+		}
+		cmd_path = find_path(parser, shell);
+		ft_cmd_path(cmd_path, parser, exec);
+}
 void execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {
-	char *cmd_path;
+	char	*cmd_path;
 
+	cmd_path = NULL;
 	while (parser != NULL)
 	{
 		if (!parser || !parser->str || !parser->str[0])
 		{
 			parser = parser->next;
-			return;
+			continue;
 		}
 		if (is_builtin(parser->str[0]))
 		{
+			exec->env = NULL;
 			execute_builtin(parser, shell);
+			if (parser->str)
+				free_cmd_argv(parser);
 			parser = parser->next;
 		}
-		cmd_path = find_path(parser, shell);
-		ft_cmd_path(cmd_path, parser, exec);
+		create_exec_env(shell, exec, cmd_path, parser);
 		free(cmd_path);
 		free_cmd_argv(parser);
 		free_all(exec);
-		parser = parser->next;
 		if (cmd_path)
 			free(cmd_path);
 	}

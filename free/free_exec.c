@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/16 17:41:21 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:28:11 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,9 @@ void	free_pipes(t_exec *exec)
 
 void	free_all(t_exec *exec)
 {
+
+	free_exec_env(exec->env);
+	exec->env = NULL;
 	free_pipes(exec);
 	free(exec->pid);
 }

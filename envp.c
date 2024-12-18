@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   envp.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/03 16:22:41 by morgane          ###   ########.fr       */
+/*   Updated: 2024/12/17 19:26:52 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,22 @@ void	ft_envclear(t_env **env, void (*del)(void *))
 }
 void	free_env(t_env *env)
 {
-	t_env	*cur;
+	t_env	*tmp;
 
-	cur = env;
-	while (cur != NULL)
+	while (env)
 	{
-		ft_envclear(&cur, free);
+		tmp = env;
+		env = env->next;
+		if (tmp->name) {
+			free(tmp->name);
+		}
+		if (tmp->value) {
+			free(tmp->value);
+		}
+		if (tmp->content) {
+			free(tmp->content);
+		}
+		free(tmp);
 	}
 }
 

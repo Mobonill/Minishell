@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:21:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/13 16:40:16 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/17 18:42:09 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int	ft_envsize_minishell(t_env *lst)
 int is_builtin(char *cmd)
 {
 	return (!ft_strcmp(cmd, "cd") || !ft_strcmp(cmd, "export") || !ft_strcmp(cmd, "unset") ||
-			!ft_strcmp(cmd, "env") || !ft_strcmp(cmd, "exit") || !ft_strcmp(cmd, "echo"));
+			!ft_strcmp(cmd, "env") || !ft_strcmp(cmd, "exit") || !ft_strcmp(cmd, "pwd") || !ft_strcmp(cmd, "echo"));
 }
 int	cleanup_and_exit(t_exec *exec, t_shell *shell)
 {

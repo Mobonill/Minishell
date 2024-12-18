@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 18:45:44 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/17 19:26:52 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:58:56 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ void	ft_envclear(t_env **env, void (*del)(void *))
 	while (*env)
 	{
 		temp = (*env)->next;
-		del((*env)->content);
+		if (del)
+			del((*env)->content);
 		if ((*env)->name)
 			free((*env)->name);
 		if ((*env)->value)
@@ -36,15 +37,12 @@ void	free_env(t_env *env)
 	{
 		tmp = env;
 		env = env->next;
-		if (tmp->name) {
+		if (tmp->name)
 			free(tmp->name);
-		}
-		if (tmp->value) {
+		if (tmp->value)
 			free(tmp->value);
-		}
-		if (tmp->content) {
+		if (tmp->content)
 			free(tmp->content);
-		}
 		free(tmp);
 	}
 }
@@ -133,10 +131,17 @@ void	get_env_names_and_values(t_env *env)
 		limit = ft_strchr(cur->content, '=');
 		if (limit)
 		{
-			len = limit - (char *)cur->content;
-			cur->name = malloc(sizeof(char) * len + 1);
+		{
+			len = limit - cur->content;
+			cur->name = malloc(sizeof(char) * (len + 1));
+			if (!cur->name)
+				return;
 			ft_strncpy(cur->name, cur->content, len);
+			cur->name[len] = '\0';
 			cur->value = ft_strdup(limit + 1);
+			if (!cur->value)
+				return;
+		}
 		}
 		cur = cur->next;
 	}

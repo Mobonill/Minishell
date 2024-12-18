@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/17 20:57:22 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/18 20:40:24 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ int	handle_in_redirection(t_exec *exec, t_lexer *redir)
 	if (exec->input < 0)
 	{
 		perror(redir->str);
-		// cleanup_exec_resources(exec);
 		g_global_exit = 1;
 		return (-1);
 	}
@@ -41,7 +40,6 @@ int	handle_out_redirection(t_exec *exec, t_lexer *redir)
 	if (exec->output < 0)
 	{
 		perror(redir->str);
-		// cleanup_exec_resources(exec);
 		g_global_exit = 1;
 		return (1);
 	}
@@ -127,28 +125,34 @@ int	ft_handle_heredoc(char *str, int index)
 	return (tmp_fd);
 }
 
-// int	handle_redirections(t_exec *exec, t_simple_cmds *parser)
-// {
-// 	t_lexer	*redir;
+int	LastHeredocIsRedirected(t_exec * exec)
+{
+	int	last_fd;
+	int	i;
 
-// 	exec->heredoc_index = 0;
-// 	redir = parser->redirections;
-// 	while (redir != NULL)
-// 	{
-// 		if (redir->token == IN && handle_in_redirection(exec, redir) < 0)
-// 			return (-1);
-// 		else if ((redir->token == OUT || redir->token == APPEND) &&
-// 				 handle_out_redirection(exec, redir) < 0)
-// 			return (-1);
-// 		else if (redir->token == HEREDOC &&
-// 				 handle_heredoc_redirection(exec, parser, redir) < 0)
-// 			return (-1);
-// 		redir = redir->next;
-// 	}
-// 	if (!parser || !parser->str || !parser->str[0])
-// 		return (cleanup_heredoc_files(exec), 0);
-// 	return (0);
-// }
+	i = -1;
+	if (exec->num_heredoc > 0)
+	{
+		last_fd = exec->heredoc_fd[exec->num_heredoc - 1];
+		if (last_fd >= 0)
+		{
+			if (dup2(last_fd, STDIN_FILENO) < 0)
+			{
+				perror("");
+				return (close(last_fd), -1);
+			}
+		}
+		while (++i < exec->num_heredoc - 1)
+		{
+			if (exec->heredoc_fd[i] != -1)
+			{
+				close(exec->heredoc_fd[i]);
+				exec->heredoc_fd[i] = -1;
+			}
+		}
+	}
+	return (0);
+}
 int handle_redirections(t_exec *exec, t_simple_cmds *parser)
 {
 	t_lexer *redir;
@@ -157,29 +161,26 @@ int handle_redirections(t_exec *exec, t_simple_cmds *parser)
 	redir = parser->redirections;
 	while (redir != NULL)
 	{
-		if (redir->token == HEREDOC)
-		{
-			if (handle_heredoc_redirection(exec, parser, redir) < 0)
-				return (-1);
-		}
+	if (redir->token == IN && handle_in_redirection(exec, redir) < 0)
+			return (-1);
+		redir = redir->next;
+	}
+	redir = parser->redirections;
+	while (redir != NULL)
+	{
+		if (redir->token == HEREDOC && handle_heredoc_redirection(exec, parser, redir) < 0)
+			return (-1);
 		redir = redir->next;
 	}
 	redir = parser->redirections; 
 	while (redir != NULL)
 	{
-		if (redir->token == IN)
-		{
-			if (handle_in_redirection(exec, redir) < 0)
-				return (-1);
-		}
-		else if (redir->token == OUT || redir->token == APPEND)
+		if (redir->token == OUT || redir->token == APPEND)
 		{
 			if (handle_out_redirection(exec, redir) < 0)
 				return (-1);
 		}
 		redir = redir->next;
 	}
-	if (!parser || !parser->str || !parser->str[0])
-		return (cleanup_heredoc_files(exec), 0);
 	return (0);
 }

@@ -284,6 +284,7 @@ int handle_heredoc_redirection(t_exec *exec, t_simple_cmds *parser, t_lexer *red
 int write_to_heredoc(const char *delimiter, const char *filename);
 int ft_handle_heredoc(char *str, int index);
 int handle_redirections(t_exec *exec, t_simple_cmds *parser);
+int	LastHeredocIsRedirected(t_exec * exec);
 
 //
 char	*generate_heredoc_filename(int index);

@@ -57,7 +57,8 @@ void	free_all(t_exec *exec)
 	free_exec_env(exec->env);
 	exec->env = NULL;
 	free_pipes(exec);
-	free(exec->pid);
+	if (exec->pid)
+		free(exec->pid);
 }
 
 void	free_cmd_argv(t_simple_cmds *parser)

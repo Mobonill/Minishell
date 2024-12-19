@@ -55,6 +55,5 @@ int	builtin_exit(t_simple_cmds *simple_cmd, t_shell *shell)
 			g_global_exit = 256 + g_global_exit;
 	}
 	ft_free_tous(shell);
-	//printf("status exit  = %d\n", g_global_exit);
 	exit(g_global_exit);
 }

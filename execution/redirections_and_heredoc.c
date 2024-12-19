@@ -21,7 +21,7 @@ int	handle_in_redirection(t_exec *exec, t_lexer *redir)
 		perror(redir->str);
 		g_global_exit = 1;
 		// cleanup_exec_resources(exec);
-		exit (1);
+		return (1);
 	}
 	if (dup2(exec->input, STDIN_FILENO) < 0)
 	{
@@ -44,8 +44,8 @@ int	handle_out_redirection(t_exec *exec, t_lexer *redir)
 		ft_putstr_fd("bash: ", STDERR_FILENO);
 		perror(redir->str);
 		g_global_exit = 1;
-		cleanup_exec_resources(exec);
-		exit (1);
+		// cleanup_exec_resources(exec);
+		return (1);
 	}
 	if (dup2(exec->output, STDOUT_FILENO) < 0)
 	{

@@ -32,7 +32,7 @@
 # include <ctype.h>
 # include <stdbool.h>
 
-extern int	g_global_exit;
+extern int g_global_exit;
 
 typedef enum s_tokens
 {

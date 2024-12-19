@@ -55,7 +55,6 @@ int init_exec_memory(t_exec *exec, t_simple_cmds *parser)
 	if (!exec->fd || !exec->pid)
 	{
 		perror("");
-		// cleanup_heredoc_files(exec);
 		free(exec->fd);
 		free(exec->pid);
 		free(exec);
@@ -113,91 +112,30 @@ int execute_minishell(t_shell *shell, t_simple_cmds *parser)
 		return (errno);
 	if (ft_lstsize_minishell(parser) == 1)
  	{
+		// printf("redir str %s\n", parser->redirections->str);
+		// fflush(stdout);
 		if (parser->str && is_builtin(parser->str[0]))
 		{
-			result = execute_builtin(parser, shell);
-			return (free(exec), result);
+			if (parser->redirections == NULL)
+			{
+				result = execute_builtin(parser, shell);
+				return (free(exec), result);
+			}
 		}
  	}
-	// exec->env = transform_env_list_to_tab(shell, exec);
+	printf("global exit = %d\n", g_global_exit);
+	fflush(stdout);
 	result = init_exec_memory(exec, parser);
 	if (result != 0)
 		return (result);
 	result = allocate_pipes(exec, shell);
 	if (result != 0)
 		return (result);
-	// child_process(exec, parser, 0, shell);
 	fork_system_call(parser, exec, shell);
 	cleanup_exec_resources(exec);
-	return (0);
+	return (g_global_exit);
 }
 
-// int execute_minishell(t_shell *shell, t_simple_cmds *parser)
-// {
-// 	t_exec *exec;
-// 	int i;
-
-// 	exec = NULL;
-// 	i = -1;
-// 	exec = malloc(sizeof(t_exec));
-// 	if (!exec)
-// 		return (errno);
-// 	ft_memset(exec, 0, sizeof(t_exec));
-// 	exec->status = 0;
-// 	if (ft_lstsize_minishell(parser) == 1)
-// 	{
-// 		if (parser->str && is_builtin(parser->str[0]))
-// 		{
-// 			int builtin_status = execute_builtin(parser, shell);
-// 			free(exec);
-// 			return (builtin_status);
-// 		}
-// 	}
-// 	exec->env = NULL;
-// 	exec->num_pipes = ft_lstsize_minishell(parser) - 1;
-// 	exec->pid = malloc(sizeof(pid_t) * (exec->num_pipes + 1));
-// 	exec->fd = malloc(sizeof(int *) * (exec->num_pipes));
-// 	exec->input = -1;
-// 	exec->output = -1;
-// 	exec->num_heredoc = 0;
-// 	if (!exec->fd || !exec->pid)
-// 	{
-// 		perror("");
-// 		cleanup_heredoc_files(exec);
-// 		free(exec->fd);
-// 		free(exec->pid);
-// 		free(exec);
-// 		return (errno);
-// 	}
-// 	i = -1;
-// 	while (++i < exec->num_pipes)
-// 	{
-// 		if (exec->fd)
-// 		{
-// 			exec->fd[i] = malloc(sizeof(int) * 2);
-// 			if (!exec->fd[i] || pipe(exec->fd[i]) != 0)
-// 			{
-// 				while (--i >= 0)
-// 					free(exec->fd[i]);
-// 				free(exec->fd);
-// 				free(exec->pid);
-// 				cleanup_and_exit(exec, shell);
-// 				return (errno);
-// 			}
-// 		}
-// 	}
-// 	fork_system_call(parser, exec, shell);
-// 	free(exec->pid);
-// 	if (exec->fd)
-// 	{
-// 		i = -1;
-// 		while (++i < exec->num_pipes)
-// 			free(exec->fd[i]);
-// 		free(exec->fd);
-// 	}
-// 	free(exec);
-// 	return (0);
-// }
 
 void fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 {
@@ -241,6 +179,7 @@ int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, 
 	}
 	return (0);
 }
+
 int handle_first_pipe(t_exec *exec, int i)
 {
 	if (exec->num_pipes > 0 && i == 0)
@@ -294,6 +233,8 @@ int child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 		exit (1);
 	if ((!parser || !parser->str || !parser->str[0]) && exec->num_pipes == 0)
 		exit(0);
+	if (ft_lstsize_minishell(parser) > 1){
+
 	if (handle_first_pipe(exec, i) < 0)
 		exit (1);
 	if (handle_last_pipe(exec, i) < 0)
@@ -301,6 +242,9 @@ int child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 	if (handle_middle_pipe(exec, i) < 0)
 		exit (1);
 	closing_child_pipes(exec, i);
+	}
+	if (g_global_exit != 0)
+		exit (g_global_exit);
 	execute_command(parser, shell, exec);
 	return 0;
 }
@@ -316,6 +260,7 @@ void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
 			free(cmd_path);
 			free_cmd_argv(parser);
 			free_all(exec);
+			g_global_exit = 126;
 			exit(126);
 		}
 	}
@@ -323,26 +268,12 @@ void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
 	{
 		free_cmd_argv(parser);
 		free_all(exec);
+		g_global_exit = 127;
 		exit(127);
 	}
 }
 void	create_exec_env(t_shell *shell, t_exec *exec, char *cmd_path, t_simple_cmds *parser)
 {
-	// int	size_env;
-
-	// size_env = 0;
-	// if (exec->env != NULL)
-	// {
-		// size_env = ft_envsize_minishell(shell->env);
-		// exec->env = malloc(sizeof(char *) * (size_env + 1));
-		// if (!exec->env)
-		// {
-		// 	perror("");
-		// 	free_all(exec);
-		// 	exit(1);
-		// }
-		// exec->env[size_env] = NULL;
-	// }
 	exec->env = transform_env_list_to_tab(shell, exec);
 	cmd_path = find_path(parser, shell);
 	ft_cmd_path(cmd_path, parser, exec);

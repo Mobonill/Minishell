@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/18 20:40:24 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/19 13:25:52 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,11 @@ int	handle_in_redirection(t_exec *exec, t_lexer *redir)
 	exec->input = open(redir->str, O_RDONLY);
 	if (exec->input < 0)
 	{
+		ft_putstr_fd("bash: ", STDERR_FILENO);
 		perror(redir->str);
 		g_global_exit = 1;
-		return (-1);
+		// cleanup_exec_resources(exec);
+		exit (1);
 	}
 	if (dup2(exec->input, STDIN_FILENO) < 0)
 	{
@@ -39,9 +41,11 @@ int	handle_out_redirection(t_exec *exec, t_lexer *redir)
 		exec->output = open(redir->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (exec->output < 0)
 	{
+		ft_putstr_fd("bash: ", STDERR_FILENO);
 		perror(redir->str);
 		g_global_exit = 1;
-		return (1);
+		cleanup_exec_resources(exec);
+		exit (1);
 	}
 	if (dup2(exec->output, STDOUT_FILENO) < 0)
 	{
@@ -161,18 +165,18 @@ int handle_redirections(t_exec *exec, t_simple_cmds *parser)
 	redir = parser->redirections;
 	while (redir != NULL)
 	{
-	if (redir->token == IN && handle_in_redirection(exec, redir) < 0)
-			return (-1);
-		redir = redir->next;
-	}
-	redir = parser->redirections;
-	while (redir != NULL)
-	{
 		if (redir->token == HEREDOC && handle_heredoc_redirection(exec, parser, redir) < 0)
 			return (-1);
 		redir = redir->next;
 	}
 	redir = parser->redirections; 
+	while (redir != NULL)
+	{
+	if (redir->token == IN && handle_in_redirection(exec, redir) < 0)
+			return (-1);
+		redir = redir->next;
+	}
+	redir = parser->redirections;
 	while (redir != NULL)
 	{
 		if (redir->token == OUT || redir->token == APPEND)

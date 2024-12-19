@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/18 20:34:49 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/19 13:14:43 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,20 +111,22 @@ int execute_minishell(t_shell *shell, t_simple_cmds *parser)
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
-	// if (ft_lstsize_minishell(parser) == 1)
- 	// {
-	// 	if (parser->str && is_builtin(parser->str[0]))
-	// 	{
-	// 		result = execute_builtin(parser, shell);
-	// 		return (free(exec), result);
-	// 	}
- 	// }
+	if (ft_lstsize_minishell(parser) == 1)
+ 	{
+		if (parser->str && is_builtin(parser->str[0]))
+		{
+			result = execute_builtin(parser, shell);
+			return (free(exec), result);
+		}
+ 	}
+	// exec->env = transform_env_list_to_tab(shell, exec);
 	result = init_exec_memory(exec, parser);
 	if (result != 0)
 		return (result);
 	result = allocate_pipes(exec, shell);
 	if (result != 0)
 		return (result);
+	// child_process(exec, parser, 0, shell);
 	fork_system_call(parser, exec, shell);
 	cleanup_exec_resources(exec);
 	return (0);
@@ -326,24 +328,24 @@ void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
 }
 void	create_exec_env(t_shell *shell, t_exec *exec, char *cmd_path, t_simple_cmds *parser)
 {
-	int	size_env;
+	// int	size_env;
 
-	size_env = 0;
-	if (exec->env != NULL)
-		{
-			size_env = ft_envsize_minishell(shell->env);
-			exec->env = malloc(sizeof(char *) * (size_env + 1));
-			if (!exec->env)
-			{
-				perror("");
-				free_all(exec);
-				exit(1);
-			}
-			exec->env[size_env] = NULL;
-			exec->env = transform_env_list_to_tab(shell, exec);
-		}
-		cmd_path = find_path(parser, shell);
-		ft_cmd_path(cmd_path, parser, exec);
+	// size_env = 0;
+	// if (exec->env != NULL)
+	// {
+		// size_env = ft_envsize_minishell(shell->env);
+		// exec->env = malloc(sizeof(char *) * (size_env + 1));
+		// if (!exec->env)
+		// {
+		// 	perror("");
+		// 	free_all(exec);
+		// 	exit(1);
+		// }
+		// exec->env[size_env] = NULL;
+	// }
+	exec->env = transform_env_list_to_tab(shell, exec);
+	cmd_path = find_path(parser, shell);
+	ft_cmd_path(cmd_path, parser, exec);
 }
 void execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {

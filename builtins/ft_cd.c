@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 15:22:27 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/18 15:55:38 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/19 12:41:07 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void update_env(t_env *env, const char *var_name, const char *new_value)
 		{
 			free(env->value);
 			env->value = ft_strdup(new_value);
-			printf("NEW %s now %s\n", env->name, env->value); // del
+			// printf("NEW %s now %s\n", env->name, env->value); // del
 			return;
 		}
 		env = env->next;

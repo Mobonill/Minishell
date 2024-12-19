@@ -12,16 +12,28 @@
 
 #include "../include/minishell.h"
 
+char	*get_current_path(t_env *env)
+{
+	char	*current_path;
+
+	current_path = getcwd(NULL, 0);
+	if (!current_path)
+		current_path = ft_strdup(get_env_value("PWD", env));
+	return (current_path);
+}
+
 void	ft_pwd(t_env *env)
 {
-	t_env	*cur;
+	char	*path;
 
-	cur = env;
-	while (cur != NULL)
+	path = get_current_path(env);
+	if (!path)
 	{
-		if (ft_strcmp(cur->name, "PWD") == 0)
-			printf("%s\n", cur->value);
-		cur = cur->next;
+		printf("bash: pwd: No such file or directory\n");
+		g_global_exit = 1;
+		return;
 	}
-	return ;
+	printf("%s\n", path);
+	free(path);
+	g_global_exit = 0;
 }

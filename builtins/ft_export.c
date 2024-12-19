@@ -164,6 +164,7 @@ void	process_export_argument(char *arg, t_env **env)
 	if (!is_valid_identifier(arg))
 	{
 		printf("export: `%s': not a valid identifier\n", arg);
+		g_global_exit = 1;
 		return ;
 	}
 	limit = ft_strchr(arg, '=');
@@ -186,6 +187,7 @@ int	builtin_export(t_simple_cmds *simple_cmd, t_shell *shell)
 	int	i;
 
 	i = 1;
+	g_global_exit = 0;
 	while (simple_cmd->str[i])
 	{
 		process_export_argument(simple_cmd->str[i], &shell->env);

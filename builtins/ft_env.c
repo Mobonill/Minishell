@@ -25,3 +25,32 @@ void	ft_env(t_env *env)
 		cur = cur->next;
 	}
 }
+
+
+/*void	ft_env(t_env *env)
+{
+	t_env	*cur;
+
+	if (env == NULL)
+	{
+		printf("bash: env: No environment variables set.\n");
+		g_global_exit = 1;
+		return;
+	}
+
+	cur = env;
+	while (cur != NULL)
+	{
+		if (cur->name && cur->value)
+		{
+			printf("%s=%s\n", cur->name, cur->value);
+		}
+		else if (cur->name)
+		{
+			printf("%s=\n", cur->name);
+		}
+		cur = cur->next;
+	}
+	g_global_exit = 0;
+}
+*/

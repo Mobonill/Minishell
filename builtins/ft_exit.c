@@ -34,8 +34,11 @@ int	is_all_digits(const char *str)
 
 int	builtin_exit(t_simple_cmds *simple_cmd, t_shell *shell)
 {
-	if (!simple_cmd->str[1])
-		printf("exit\n");
+    if (!simple_cmd->str[1])
+    {
+        printf("exit\n");
+        g_global_exit = 0;
+    }
 	else if (!is_all_digits(simple_cmd->str[1]))
 	{
 		printf("exit\nbash: exit: %s: numeric argument required\n",
@@ -55,6 +58,6 @@ int	builtin_exit(t_simple_cmds *simple_cmd, t_shell *shell)
 			g_global_exit = 256 + g_global_exit;
 	}
 	ft_free_tous(shell);
-	//printf("status exit  = %d\n", g_global_exit);
+	printf("status exit  = %d\n", g_global_exit);
 	exit(g_global_exit);
 }

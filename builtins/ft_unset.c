@@ -19,6 +19,7 @@ void	ft_unset(char **unset, t_shell *shell)
 	t_env	*prev;
 
 	i = 1; // j'ignore mon "unset"
+	g_global_exit = 0;
 	while (unset[i])
 	{
 		cur = shell->env; // R

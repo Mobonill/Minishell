@@ -50,10 +50,14 @@ int	builtin_echo(t_simple_cmds *simple_cmd)
 	bool	n_option;
 
 	if (!simple_cmd || !simple_cmd->str)
+	{
+		g_global_exit = 1;
 		return (1);
+	}
 	n_option = check_n_option(simple_cmd->str, &i);
 	print_args(simple_cmd->str, i);
 	if (!n_option)
 		printf("\n");
+	g_global_exit = 0;
 	return (0);
 }

@@ -12,7 +12,6 @@
 
 #include "../include/minishell.h"
 
-int	g_global_exit = 0;
 
 void	ft_init_shell_1(t_shell *shell)
 {
@@ -25,40 +24,22 @@ void	ft_init_shell_1(t_shell *shell)
 	return ;
 }
 
-t_shell	*ft_init_shell_2(char **envp)
-{
-	t_shell *shell;
-
-	shell = malloc(sizeof(t_shell));
-	if (!shell)
-		return (NULL);
-	shell->input_line = NULL;
-	shell->lexer_list = NULL;
-	shell->count_pipe = 0;
-	shell->pars = NULL;
-	shell->envp = envp;
-	shell->commands = NULL;
-	signals();
-	return (shell);
-}
-
 
 void	ft_start_loop(char **envp)
 {
 	t_shell *shell;
 
-	shell = ft_init_shell_2(envp);
-	// shell = malloc(sizeof(t_shell));
-	// if (!shell)
-	// {
-	// 	perror("Malloc failed");
-	// 	exit(EXIT_FAILURE);
-	// }
-	// shell = NULL;
+
+	shell = malloc(sizeof(t_shell));
+	if (!shell)
+	{
+		perror("Malloc failed");
+		exit(EXIT_FAILURE);
+	}
 	shell->env = init_env((const char **)envp, shell);
 	while (1)
 	{
-		// ft_init_shell_1(shell);
+		ft_init_shell_1(shell);
 		shell->input_line = readline("Minishell$ ");
 		if (shell->input_line == NULL)
 		{
@@ -86,14 +67,15 @@ void	ft_start_loop(char **envp)
 				ft_free_lex(shell);
 				continue ;
 			}
-			print_tokens(shell->lexer_list);
+			// print_tokens(shell->lexer_list);
 			parser_part(shell->count_pipe, &shell->lexer_list,shell);
 			// printf("AVANT\n");
 			// print_simple_cmds(shell->commands);
 			expand_part(shell);
-			printf("APRES\n");
-			print_simple_cmds(shell->commands);
-			execute_minishell(shell, shell->commands);
+			// printf("APRES\n");
+			// print_simple_cmds(shell->commands);
+			g_global_exit = execute_minishell(shell, shell->commands);
+			ft_printf("Last exit status: %d\n", g_global_exit);
 			ft_free_tous(shell);
 		}
 		else

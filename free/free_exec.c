@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:22:58 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 19:32:54 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:28:11 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ void	free_exec_env(char **env)
 	}
 	free(env);
 }
+
+
 void	free_pipes(t_exec *exec)
 {
 	int	i;
@@ -35,7 +37,7 @@ void	free_pipes(t_exec *exec)
 	if (exec->fd)
 	{
 		i = 0;
-		while (i <= exec->num_pipes + 2)
+		while (i < exec->num_pipes)
 		{
 			if (exec->fd[i])
 			{
@@ -51,8 +53,12 @@ void	free_pipes(t_exec *exec)
 
 void	free_all(t_exec *exec)
 {
+
+	free_exec_env(exec->env);
+	exec->env = NULL;
 	free_pipes(exec);
-	free(exec->pid);
+	if (exec->pid)
+		free(exec->pid);
 }
 
 void	free_cmd_argv(t_simple_cmds *parser)
@@ -60,10 +66,14 @@ void	free_cmd_argv(t_simple_cmds *parser)
 	int i;
 
 	i = 0;
+	if (parser == NULL || parser->str == NULL)
+		return ;
 	while (parser->str[i])
 	{
-		free(parser->str[i]);
+		if (parser->str[i] != NULL)
+			free(parser->str[i]);
 		i++;
 	}
 	free(parser->str);
+	parser->str = NULL;
 }

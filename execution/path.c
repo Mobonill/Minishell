@@ -6,7 +6,7 @@
 /*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 17:22:36 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/04 19:26:03 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:14:39 by mobonill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,26 +70,29 @@ void	free_path(char **path)
 
 char	*find_path(t_simple_cmds *parser, t_shell *shell)
 {
-	char	**path;
-	char	*envp_path;
-	char	*cmd_path;
+	char **path;
+	char *envp_path;
+	char *cmd_path;
 
-	if (!parser->str || !parser->str[0])
-		return (NULL);
+	if (!parser || !parser->str || !parser->str[0])
+		return NULL;
 	envp_path = get_envp_path(shell->env);
 	if (!envp_path || ft_strlen(envp_path) == 0)
 	{
 		free(envp_path);
 		if (access(parser->str[0], X_OK) == 0)
-			return (ft_strdup(parser->str[0]));
-		perror("");
-		return (NULL);
+			return ft_strdup(parser->str[0]);
+		perror("Command not found and PATH is empty");
+		return NULL;
 	}
 	path = ft_split(envp_path, ':');
 	free(envp_path);
 	if (!path)
-		return (NULL);
+	{
+		perror("Error splitting PATH");
+		return NULL;
+	}
 	cmd_path = find_command_in_path(parser->str[0], path);
 	free_path(path);
-	return (cmd_path);
+	return cmd_path;
 }

@@ -32,7 +32,7 @@
 # include <ctype.h>
 # include <stdbool.h>
 
-extern int	g_global_exit;
+extern int g_global_exit;
 
 typedef enum s_tokens
 {
@@ -88,7 +88,6 @@ typedef struct s_shell
 	t_lexer			*lexer_list;
 	t_simple_cmds	*pars;
 	t_pars_mini		*pars_mini;
-	char			**envp;
 	t_simple_cmds	*commands;
 	t_env			*env;
 	t_env			*hidden;
@@ -105,8 +104,11 @@ typedef struct s_exec
 {
 	int		input;
 	int		output;
+	int		num_heredoc;
 	int		**fd;
+	int		*heredoc_fd;
 	int		status;
+	int		heredoc_index;
 	int		num_pipes;
 	char	**env;
 	char	*path;
@@ -212,11 +214,18 @@ int				is_all_digits(const char *str);
 void	ft_env(t_env *env);
 
 //			export
-void	modify_env_value(t_env *cur, char * limit);
-void	create_new_env_node(char *to_compare, t_env *cur, char *limit, char *export);
-void	ft_export(char	**export, t_shell *shell);
+bool	is_valid_identifier(const char *str);
+void	modify_env_value(t_env *cur, char *limit);
+void	initialize_env_node(t_env *new_node, char *export);
+void	create_new_env_node(char *to_compare, t_env **env,
+		char *limit, char *export);
+void	print_sorted_env(t_env *env);
 void	swap_env(t_env *cur);
-void	sort_env_list(t_env *cur, t_shell *shell);
+void	sort_env_list(t_env *env);
+void	handle_new_or_existing_env(char *to_compare, char *limit,
+		char *export, t_env **env);
+void	process_export_argument(char *arg, t_env **env);
+int		builtin_export(t_simple_cmds *simple_cmd, t_shell *shell);
 
 //			pwd
 void	ft_pwd(t_env *env);
@@ -242,29 +251,46 @@ int		manage_dup(int oldfd, int newfd);
 int		ft_lstsize_minishell(t_simple_cmds *lst);
 int		ft_envsize_minishell(t_env *lst);
 int		is_builtin(char *cmd);
+int		cleanup_and_exit(t_exec *exec, t_shell *shell);
 
 
 // EXECUTION
+void cleanup_exec_resources(t_exec *exec);
 int		execute_minishell(t_shell *shell, t_simple_cmds *parser);
 char	**transform_env_list_to_tab(t_shell *shell, t_exec *exec);
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
 int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
-void	execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
-int		parent_process(t_exec *exec);
-int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
-int		execute_single_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
+void		parent_process(t_exec *exec, t_simple_cmds *parser);
+//int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
+int		init_fds(t_exec *exec, t_shell *shell, int i);
+int		init_exec(t_shell *shell, t_exec **exec, t_simple_cmds *parser);
+int allocate_pipes(t_exec *exec, t_shell *shell);
+
+// EXECUTE COMMAND
+void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec);
+void execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec);
 
 
 // PATH
-char	*find_path(t_simple_cmds *parser, t_shell *shell);
 void	free_path(char **path);
 char	*find_command_in_path(char *cmd, char **path);
 char	*get_envp_path(t_env *env);
+char	*find_path(t_simple_cmds *parser, t_shell *shell);
 
 // REDIRECTIONS AND HEREDOC
-int		handle_redirections(t_exec *exec, t_simple_cmds *parser);
-int		ft_handle_heredoc(char *str);
+int handle_in_redirection(t_exec *exec, t_lexer *redir);
+int handle_out_redirection(t_exec *exec, t_lexer *redir);
+int handle_heredoc_redirection(t_exec *exec, t_simple_cmds *parser, t_lexer *redir);
+int write_to_heredoc(const char *delimiter, const char *filename);
+int ft_handle_heredoc(char *str, int index);
+int handle_redirections(t_exec *exec, t_simple_cmds *parser);
+int	LastHeredocIsRedirected(t_exec * exec);
+int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
+
+//
 char	*generate_heredoc_filename(int index);
+int		count_heredocs(t_lexer *redirections);
+void	cleanup_heredoc_files(t_exec *exec);
 
 // SIGNALS
 void	signal_heredoc(int sig);

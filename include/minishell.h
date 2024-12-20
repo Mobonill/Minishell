@@ -261,7 +261,7 @@ char	**transform_env_list_to_tab(t_shell *shell, t_exec *exec);
 void	fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell);
 int		child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
 void		parent_process(t_exec *exec, t_simple_cmds *parser);
-int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
+//int		execute_builtin(t_simple_cmds *parser, t_shell *shell);
 int		init_fds(t_exec *exec, t_shell *shell, int i);
 int		init_exec(t_shell *shell, t_exec **exec, t_simple_cmds *parser);
 int allocate_pipes(t_exec *exec, t_shell *shell);
@@ -285,6 +285,7 @@ int write_to_heredoc(const char *delimiter, const char *filename);
 int ft_handle_heredoc(char *str, int index);
 int handle_redirections(t_exec *exec, t_simple_cmds *parser);
 int	LastHeredocIsRedirected(t_exec * exec);
+int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell);
 
 //
 char	*generate_heredoc_filename(int index);

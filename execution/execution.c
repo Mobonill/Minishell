@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 18:43:01 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/19 13:14:43 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/20 19:04:30 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,40 +100,100 @@ void cleanup_exec_resources(t_exec *exec)
 	free(exec);
 }
 
+void save_and_restore_std(int *saved_stdin, int *saved_stdout)
+{
+	*saved_stdin = dup(STDIN_FILENO);
+	*saved_stdout = dup(STDOUT_FILENO);
+}
+
+void restore_std(int saved_stdin, int saved_stdout)
+{
+	dup2(saved_stdin, STDIN_FILENO);
+	dup2(saved_stdout, STDOUT_FILENO);
+	close(saved_stdin);
+	close(saved_stdout);
+}
+
+int execute_builtin(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
+{
+	int saved_stdin;
+	int saved_stdout;
+
+	save_and_restore_std(&saved_stdin, &saved_stdout);
+	if (handle_redirections_and_heredoc(exec, parser, 0, shell) < 0)
+	{
+		restore_std(saved_stdin, saved_stdout);
+		return (-1);
+	}
+	if (!ft_strcmp(parser->str[0], "cd"))
+		builtin_cd(parser, shell->env);
+	else if (!ft_strcmp(parser->str[0], "export"))
+		builtin_export(parser, shell);
+	else if (!ft_strcmp(parser->str[0], "unset"))
+		ft_unset(parser->str, shell);
+	else if (!ft_strcmp(parser->str[0], "env"))
+		ft_env(shell->env);
+	else if (!ft_strcmp(parser->str[0], "exit"))
+		builtin_exit(parser, shell);
+	else if (!ft_strcmp(parser->str[0], "echo"))
+		builtin_echo(parser);
+	else if (!ft_strcmp(parser->str[0], "pwd"))
+		ft_pwd(shell->env);
+	restore_std(saved_stdin, saved_stdout);
+	return (0);
+}
+
 int execute_minishell(t_shell *shell, t_simple_cmds *parser)
 {
 	t_exec *exec;
 	int result;
 
-	result = 0;
-	exec = NULL;
 	exec = malloc(sizeof(t_exec));
 	if (!exec)
 		return (errno);
-	if (ft_lstsize_minishell(parser) == 1)
- 	{
-		// printf("redir str %s\n", parser->redirections->str);
-		// fflush(stdout);
-		if (parser->str && is_builtin(parser->str[0]))
-		{
-			if (parser->redirections == NULL)
-			{
-				result = execute_builtin(parser, shell);
-				return (free(exec), result);
-			}
-		}
- 	}
-	printf("global exit = %d\n", g_global_exit);
-	fflush(stdout);
-	result = init_exec_memory(exec, parser);
-	if (result != 0)
+	if (ft_lstsize_minishell(parser) == 1 && is_builtin(parser->str[0]))
+	{
+		result = execute_builtin(parser, shell, exec);
+		free(exec);
 		return (result);
-	result = allocate_pipes(exec, shell);
-	if (result != 0)
-		return (result);
+	}
+	if (init_exec_memory(exec, parser) != 0)
+		return (1);
+	if (allocate_pipes(exec, shell) != 0)
+		return (1);
 	fork_system_call(parser, exec, shell);
+	int i = 0;
+	while (i <= exec->num_pipes)
+	{
+		waitpid(exec->pid[i], &exec->status, 0);
+		if (WIFEXITED(exec->status))
+			g_global_exit = WEXITSTATUS(exec->status);
+		else if (WIFSIGNALED(exec->status))
+			g_global_exit = 128 + WTERMSIG(exec->status);
+		i++;
+	}
 	cleanup_exec_resources(exec);
 	return (g_global_exit);
+}
+int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
+{
+	(void)shell;
+
+	if (handle_redirections(exec, parser) != 0)
+		return (g_global_exit);
+	if (LastHeredocIsRedirected(exec) != 0)
+		return (g_global_exit);
+	if (exec->num_heredoc > 0 && i < exec->num_heredoc)
+	{
+		if (exec->heredoc_fd[i] != -1)
+		{
+			close(exec->heredoc_fd[i]);
+			exec->heredoc_fd[i] = -1;
+		}
+	}
+	if (!parser || !parser->str || !parser->str[0])
+		return (cleanup_heredoc_files(exec), g_global_exit);
+	return (0);
 }
 
 
@@ -160,25 +220,25 @@ void fork_system_call(t_simple_cmds *parser, t_exec *exec, t_shell *shell)
 	parent_process(exec, parser);
 }
 
-int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
-{
-	(void)shell;
-	if (handle_redirections(exec, parser) < 0)
-		return (1);
-	if (LastHeredocIsRedirected(exec) != 0)
-		return (-1);
-	if (!parser || !parser->str || !parser->str[0])
-		return (cleanup_heredoc_files(exec), 0);
-	if (exec->num_heredoc > 0 && i < exec->num_heredoc)
-	{
-		if (exec->heredoc_fd[i] != -1)
-		{
-			close(exec->heredoc_fd[i]);
-			exec->heredoc_fd[i] = -1;
-		}
-	}
-	return (0);
-}
+// int handle_redirections_and_heredoc(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
+// {
+// 	(void)shell;
+// 	if (handle_redirections(exec, parser) < 0)
+// 		return (1);
+// 	if (LastHeredocIsRedirected(exec) != 0)
+// 		return (-1);
+// 	if (!parser || !parser->str || !parser->str[0])
+// 		return (cleanup_heredoc_files(exec), 0);
+// 	if (exec->num_heredoc > 0 && i < exec->num_heredoc)
+// 	{
+// 		if (exec->heredoc_fd[i] != -1)
+// 		{
+// 			close(exec->heredoc_fd[i]);
+// 			exec->heredoc_fd[i] = -1;
+// 		}
+// 	}
+// 	return (0);
+// }
 
 int handle_first_pipe(t_exec *exec, int i)
 {
@@ -202,10 +262,10 @@ int handle_middle_pipe(t_exec *exec, int i)
 			dup2(exec->fd[i][1], STDOUT_FILENO) < 0)
 		{
 			perror("");
-			return 1;
+			return (1);
 		}
 	}
-	return 0;
+	return (0);
 }
 int handle_last_pipe(t_exec *exec, int i)
 {
@@ -214,43 +274,54 @@ int handle_last_pipe(t_exec *exec, int i)
 		if (dup2(exec->fd[i - 1][0], STDIN_FILENO) < 0)
 		{
 			perror("");
-			return 1;
+			return (1);
 		}
 		if (exec->output != -1)
 		{
 			if (dup2(exec->output, STDOUT_FILENO) < 0)
 			{
 				perror("");
-				return 1;
+				return (1);
 			}
 		}
 	}
-	return 0;
+	return (0);
 }
 int child_process(t_exec *exec, t_simple_cmds *parser, int i, t_shell *shell)
 {
 	if (handle_redirections_and_heredoc(exec, parser, i, shell) < 0)
-		exit (1);
+		exit(1);
 	if ((!parser || !parser->str || !parser->str[0]) && exec->num_pipes == 0)
 		exit(0);
-	if (ft_lstsize_minishell(parser) > 1){
-
-	if (handle_first_pipe(exec, i) < 0)
-		exit (1);
-	if (handle_last_pipe(exec, i) < 0)
-		exit (1);
-	if (handle_middle_pipe(exec, i) < 0)
-		exit (1);
-	closing_child_pipes(exec, i);
+	if (exec->num_pipes > 0)
+	{
+		if (i == 0)
+		{
+			if (handle_first_pipe(exec, i) < 0)
+				exit(1);
+		}
+		else if (i == exec->num_pipes)
+		{
+			if (handle_last_pipe(exec, i) < 0)
+				exit(1);
+		}
+		else
+		{
+			if (handle_middle_pipe(exec, i) < 0)
+				exit(1);
+		}
+		closing_child_pipes(exec, i);
 	}
-	if (g_global_exit != 0)
-		exit (g_global_exit);
+	if (is_builtin(parser->str[0]))
+	{
+		execute_builtin(parser, shell, exec);
+		exit(g_global_exit);
+	}
 	execute_command(parser, shell, exec);
-	return 0;
+	return (0);
 }
 
-
-void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
+void ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
 {
 	if (cmd_path)
 	{
@@ -272,7 +343,7 @@ void	ft_cmd_path(char *cmd_path, t_simple_cmds *parser, t_exec *exec)
 		exit(127);
 	}
 }
-void	create_exec_env(t_shell *shell, t_exec *exec, char *cmd_path, t_simple_cmds *parser)
+void create_exec_env(t_shell *shell, t_exec *exec, char *cmd_path, t_simple_cmds *parser)
 {
 	exec->env = transform_env_list_to_tab(shell, exec);
 	cmd_path = find_path(parser, shell);
@@ -280,7 +351,7 @@ void	create_exec_env(t_shell *shell, t_exec *exec, char *cmd_path, t_simple_cmds
 }
 void execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 {
-	char	*cmd_path;
+	char *cmd_path;
 
 	cmd_path = NULL;
 	while (parser != NULL)
@@ -290,14 +361,14 @@ void execute_command(t_simple_cmds *parser, t_shell *shell, t_exec *exec)
 			parser = parser->next;
 			continue;
 		}
-		if (is_builtin(parser->str[0]))
-		{
-			exec->env = NULL;
-			execute_builtin(parser, shell);
-			if (parser->str)
-				free_cmd_argv(parser);
-			parser = parser->next;
-		}
+		// if (is_builtin(parser->str[0]))
+		// {
+		// 	exec->env = NULL;
+		// 	execute_builtin(parser, shell, exec);
+		// 	if (parser->str)
+		// 		free_cmd_argv(parser);
+		// 	parser = parser->next;
+		// }
 		create_exec_env(shell, exec, cmd_path, parser);
 		free(cmd_path);
 		free_cmd_argv(parser);
@@ -319,33 +390,33 @@ void parent_process(t_exec *exec, t_simple_cmds *parser)
 		close(exec->fd[i][1]);
 		++i;
 	}
-	i = 0;
-	while (i <= exec->num_pipes)
-	{
-		waitpid(exec->pid[i], &exec->status, 0);
-		if (WIFEXITED(exec->status))
-			g_global_exit = WEXITSTATUS(exec->status);
-		else if (WIFSIGNALED(exec->status))
-			g_global_exit = 128 + WTERMSIG(exec->status);
-		i++;
-	}
+	// i = 0;
+	// while (i <= exec->num_pipes)
+	// {
+	// 	waitpid(exec->pid[i], &exec->status, 0);
+	// 	if (WIFEXITED(exec->status))
+	// 		g_global_exit = WEXITSTATUS(exec->status);
+	// 	else if (WIFSIGNALED(exec->status))
+	// 		g_global_exit = 128 + WTERMSIG(exec->status);
+	// 	i++;
+	// }
 }
 
-int execute_builtin(t_simple_cmds *parser, t_shell *shell)
-{
-	if (!ft_strcmp(parser->str[0], "cd"))
-		return (builtin_cd(parser, shell->env), 0);
-	if (!ft_strcmp(parser->str[0], "export"))
-		return (builtin_export(parser, shell), 0);
-	if (!ft_strcmp(parser->str[0], "unset"))
-		return (ft_unset(parser->str, shell), 0);
-	if (!ft_strcmp(parser->str[0], "env"))
-		return (ft_env(shell->env), 0);
-	if (!ft_strcmp(parser->str[0], "exit"))
-		return (builtin_exit(parser, shell), 0);
-	if (!ft_strcmp(parser->str[0], "echo"))
-		return (builtin_echo(parser), 0);
-	if (!ft_strcmp(parser->str[0], "pwd"))
-		return (ft_pwd(shell->env), 0);
-	return (0);
-}
+// int execute_builtin(t_simple_cmds *parser, t_shell *shell)
+// {
+// 	if (!ft_strcmp(parser->str[0], "cd"))
+// 		return (builtin_cd(parser, shell->env), 0);
+// 	if (!ft_strcmp(parser->str[0], "export"))
+// 		return (builtin_export(parser, shell), 0);
+// 	if (!ft_strcmp(parser->str[0], "unset"))
+// 		return (ft_unset(parser->str, shell), 0);
+// 	if (!ft_strcmp(parser->str[0], "env"))
+// 		return (ft_env(shell->env), 0);
+// 	if (!ft_strcmp(parser->str[0], "exit"))
+// 		return (builtin_exit(parser, shell), 0);
+// 	if (!ft_strcmp(parser->str[0], "echo"))
+// 		return (builtin_echo(parser), 0);
+// 	if (!ft_strcmp(parser->str[0], "pwd"))
+// 		return (ft_pwd(shell->env), 0);
+// 	return (0);
+// }

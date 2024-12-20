@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections_and_heredoc.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mobonill <mobonill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: morgane <morgane@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:17:47 by mobonill          #+#    #+#             */
-/*   Updated: 2024/12/19 13:25:52 by mobonill         ###   ########.fr       */
+/*   Updated: 2024/12/20 19:03:33 by morgane          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	handle_in_redirection(t_exec *exec, t_lexer *redir)
 		perror("");
 		close(exec->input);
 		g_global_exit = 1;
-		return (-1);
+		return (1);
 	}
 	return (0);
 }
@@ -44,7 +44,6 @@ int	handle_out_redirection(t_exec *exec, t_lexer *redir)
 		ft_putstr_fd("bash: ", STDERR_FILENO);
 		perror(redir->str);
 		g_global_exit = 1;
-		// cleanup_exec_resources(exec);
 		return (1);
 	}
 	if (dup2(exec->output, STDOUT_FILENO) < 0)
@@ -52,7 +51,7 @@ int	handle_out_redirection(t_exec *exec, t_lexer *redir)
 		perror("");
 		close(exec->output);
 		g_global_exit = 1;
-		return (-1);
+		return (1);
 	}
 	return (0);
 }
@@ -67,14 +66,14 @@ int	handle_heredoc_redirection(t_exec *exec, t_simple_cmds *parser, t_lexer *red
 		exec->num_heredoc = count_heredocs(parser->redirections);
 		exec->heredoc_fd = malloc(sizeof(int) * exec->num_heredoc);
 		if (!exec->heredoc_fd)
-			return (perror(""), -1);
+			return (perror(""), 1);
 		i = -1;
 		while (++i < exec->num_heredoc)
-			exec->heredoc_fd[i] = -1;
+			exec->heredoc_fd[i] = 1;
 	}
 	fd_heredoc = ft_handle_heredoc(redir->str, exec->heredoc_index);
 	if (fd_heredoc < 0)
-		return (-1);
+		return (1);
 	exec->heredoc_fd[exec->heredoc_index++] = fd_heredoc;
 	return (0);
 }
@@ -143,7 +142,7 @@ int	LastHeredocIsRedirected(t_exec * exec)
 			if (dup2(last_fd, STDIN_FILENO) < 0)
 			{
 				perror("");
-				return (close(last_fd), -1);
+				return (close(last_fd), 1);
 			}
 		}
 		while (++i < exec->num_heredoc - 1)
@@ -165,14 +164,14 @@ int handle_redirections(t_exec *exec, t_simple_cmds *parser)
 	redir = parser->redirections;
 	while (redir != NULL)
 	{
-		if (redir->token == HEREDOC && handle_heredoc_redirection(exec, parser, redir) < 0)
+		if (redir->token == HEREDOC && handle_heredoc_redirection(exec, parser, redir) != 0)
 			return (-1);
 		redir = redir->next;
 	}
 	redir = parser->redirections; 
 	while (redir != NULL)
 	{
-	if (redir->token == IN && handle_in_redirection(exec, redir) < 0)
+	if (redir->token == IN && handle_in_redirection(exec, redir) != 0)
 			return (-1);
 		redir = redir->next;
 	}
@@ -181,8 +180,8 @@ int handle_redirections(t_exec *exec, t_simple_cmds *parser)
 	{
 		if (redir->token == OUT || redir->token == APPEND)
 		{
-			if (handle_out_redirection(exec, redir) < 0)
-				return (-1);
+			if (handle_out_redirection(exec, redir) != 0)
+				return (g_global_exit);
 		}
 		redir = redir->next;
 	}
